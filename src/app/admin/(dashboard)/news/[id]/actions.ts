@@ -34,6 +34,10 @@ function isUniqueConstraintError(error: unknown): boolean {
   return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
 }
 
+function slugify(text: string) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+}
+
 export async function saveNews(id: string, formData: FormData) {
   const authorization = await authorizeAdmin("content:write");
   if (!authorization.authorized) {
@@ -50,6 +54,7 @@ export async function saveNews(id: string, formData: FormData) {
 
     const isFeatured = formData.get("isFeatured") === "true";
     const featuredImage = getOptionalString(formData, "featuredImage");
+    const categoryId = getOptionalString(formData, "categoryId");
     const publishDate = getPublishDate(formData);
 
     const titleId = getString(formData, "title_id");
@@ -66,12 +71,27 @@ export async function saveNews(id: string, formData: FormData) {
       return { success: false, message: "Title and slug are required for both languages" };
     }
 
+    let relatedPosts: string[] = [];
+    try { relatedPosts = JSON.parse(getString(formData, "relatedPosts") || "[]"); } catch {}
+
+    const tagsId = getString(formData, "tags_id").split(",").map(t => t.trim()).filter(Boolean);
+    const tagsEn = getString(formData, "tags_en").split(",").map(t => t.trim()).filter(Boolean);
+    
+    const maxLength = Math.max(tagsId.length, tagsEn.length);
+    const tagPairs = Array.from({ length: maxLength }).map((_, i) => {
+      const idTag = tagsId[i] || tagsEn[i] || "tag";
+      const enTag = tagsEn[i] || tagsId[i] || "tag";
+      const baseSlug = slugify(idTag);
+      return { id: idTag, en: enTag, slug: baseSlug };
+    });
+
     const newsData = {
       status,
       isFeatured,
       featuredImage,
       publishDate,
       author: { connect: { id: authorization.session.user.id } },
+      ...(categoryId ? { category: { connect: { id: categoryId } } } : { category: { disconnect: true } }),
     };
 
     const newsId = await prisma.$transaction(async (tx) => {
@@ -79,6 +99,7 @@ export async function saveNews(id: string, formData: FormData) {
         ? await tx.newsPost.create({
             data: {
               ...newsData,
+              category: categoryId ? { connect: { id: categoryId } } : undefined, // create handles undefined
               translations: {
                 create: [
                   { locale: Locale.id, title: titleId, slug: slugId, excerpt: excerptId, content: contentId },
@@ -118,8 +139,62 @@ export async function saveNews(id: string, formData: FormData) {
         },
       });
 
+      // Handle Related Posts
+      await tx.newsPost.update({
+        where: { id: savedPost.id },
+        data: {
+          relatedPosts: {
+            set: relatedPosts.map(id => ({ id }))
+          }
+        }
+      });
+
+      // Handle Tags
+      await tx.newsPostTag.deleteMany({ where: { postId: savedPost.id } });
+      
+      for (const pair of tagPairs) {
+        const tag = await tx.tagTranslation.findFirst({ where: { slug: pair.slug, locale: Locale.id } });
+        let tagId;
+        
+        if (tag) {
+          tagId = tag.tagId;
+        } else {
+          const newTag = await tx.tag.create({ data: {} });
+          tagId = newTag.id;
+          await tx.tagTranslation.createMany({
+            data: [
+              { tagId, locale: Locale.id, name: pair.id, slug: pair.slug },
+              { tagId, locale: Locale.en, name: pair.en, slug: slugify(pair.en) },
+            ]
+          });
+        }
+
+        await tx.newsPostTag.upsert({
+          where: { postId_tagId: { postId: savedPost.id, tagId } },
+          update: {},
+          create: { postId: savedPost.id, tagId }
+        });
+      }
+
       return savedPost.id;
     });
+
+    // SEO Meta
+    const locales = ["id", "en"] as const;
+    for (const loc of locales) {
+      const metaTitle = formData.get(`seoTitle_${loc}`) as string || null;
+      const metaDesc = formData.get(`seoDesc_${loc}`) as string || null;
+      const ogTitle = formData.get(`ogTitle_${loc}`) as string || null;
+      const ogDesc = formData.get(`ogDesc_${loc}`) as string || null;
+      const ogImage = formData.get(`ogImage_${loc}`) as string || null;
+      const canonicalUrl = formData.get(`canonical_${loc}`) as string || null;
+      
+      await prisma.seoMeta.upsert({
+        where: { entityType_entityId_locale: { entityType: "news", entityId: newsId, locale: loc } },
+        update: { metaTitle, metaDescription: metaDesc, ogTitle, ogDescription: ogDesc, ogImage, canonicalUrl },
+        create: { entityType: "news", entityId: newsId, locale: loc, metaTitle, metaDescription: metaDesc, ogTitle, ogDescription: ogDesc, ogImage, canonicalUrl }
+      });
+    }
 
     await prisma.auditLog.create({
       data: {
@@ -134,6 +209,8 @@ export async function saveNews(id: string, formData: FormData) {
     revalidatePath("/admin/news");
     revalidatePath("/id/berita");
     revalidatePath("/en/news");
+    revalidatePath(`/id/news/${slugId}`);
+    revalidatePath(`/en/news/${slugEn}`);
 
     return { success: true, message: "News saved successfully" };
   } catch (error: unknown) {

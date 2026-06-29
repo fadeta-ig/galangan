@@ -59,6 +59,12 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
     include: {
       translations: {
         where: { locale: locale as Locale }
+      },
+      category: {
+        include: { translations: { where: { locale: locale as Locale } } }
+      },
+      tags: {
+        include: { tag: { include: { translations: { where: { locale: locale as Locale } } } } }
       }
     }
   });
@@ -125,9 +131,16 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
                   </div>
                   
                   <div className="p-7 flex flex-col flex-grow">
-                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-4">
-                      <CalendarBlank className="size-3.5" weight="bold" />
-                      {date}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4">
+                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <CalendarBlank className="size-3.5" weight="bold" />
+                        {date}
+                      </div>
+                      {item.category?.translations[0]?.name && (
+                        <div className="text-[11px] font-semibold text-cyan uppercase tracking-wider px-2 py-0.5 bg-cyan/10 rounded-full">
+                          {item.category.translations[0].name}
+                        </div>
+                      )}
                     </div>
                     
                     <h3 className="text-[18px] font-semibold text-[#0A2463] mb-3 line-clamp-2 transition-colors duration-200 group-hover:text-[#0D2F7A]" style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}>
@@ -138,10 +151,17 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
                       {trans.excerpt || trans.content?.replace(/<[^>]+>/g, '').substring(0, 120) + "..."}
                     </p>
                     
-                    <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-[#0A2463] mt-auto">
-                      {dict.common?.readMore || "Read More"}
-                      <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" weight="bold" />
-                    </span>
+                    <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-4 mt-6">
+                      <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-[#0A2463]">
+                        {dict.common?.readMore || "Read More"}
+                        <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" weight="bold" />
+                      </span>
+                      {item.tags && item.tags.length > 0 && (
+                        <span className="text-[11px] text-slate-400 font-medium line-clamp-1 max-w-[50%]">
+                          {item.tags.map(t => t.tag.translations[0]?.name).filter(Boolean).join(", ")}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </Link>
               );
