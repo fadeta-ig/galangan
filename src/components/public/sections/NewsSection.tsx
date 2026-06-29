@@ -48,6 +48,13 @@ export default function NewsSection({
   const title =
     data ? (locale === "id" ? data.titleId : data.titleEn) : "Shipyard Spotlight";
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const config = (data as any)?.configObj || {};
+  const ctaPrimaryLabel = locale === "id" 
+    ? (config.ctaPrimaryLabelId || "Semua Berita") 
+    : (config.ctaPrimaryLabelEn || "All News");
+  const ctaPrimaryUrl = config.ctaPrimaryUrl || `/${locale}/news`;
+
   return (
     <section className="bg-slate-50 py-24">
       <div className="mx-auto max-w-7xl px-6 md:px-12">
@@ -65,10 +72,10 @@ export default function NewsSection({
             </h2>
           </div>
           <Link
-            href={`/${locale}/news`}
+            href={ctaPrimaryUrl}
             className="group inline-flex shrink-0 items-center gap-2.5 self-start rounded-md border border-[#0A2463] px-6 py-3 text-[12px] font-semibold uppercase tracking-wider text-[#0A2463] transition-all duration-300 hover:bg-[#0A2463] hover:text-white md:self-auto"
           >
-            {locale === "id" ? "Semua Berita" : "All News"}
+            {ctaPrimaryLabel}
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" weight="bold" />
           </Link>
         </div>

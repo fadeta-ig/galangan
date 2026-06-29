@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { SeoMeta } from "@prisma/client";
 import ServiceForm from "./ServiceForm";
 import { notFound } from "next/navigation";
 import { Wrench } from "@phosphor-icons/react/dist/ssr";
@@ -21,7 +22,15 @@ export default async function EditServicePage({
   if (!isNew) {
     service = await prisma.service.findUnique({
       where: { id },
-      include: { translations: true },
+      include: { 
+        translations: true,
+        gallery: {
+          include: { media: true },
+          orderBy: { sortOrder: "asc" }
+        },
+        projectServices: true,
+        relatedServices: true,
+      },
     });
 
     if (!service) {
@@ -34,6 +43,24 @@ export default async function EditServicePage({
     orderBy: { sortOrder: "asc" },
   });
 
+  const allProjects = await prisma.project.findMany({
+    include: { translations: { where: { locale: "id" } } },
+    orderBy: { sortOrder: "asc" }
+  });
+
+  const allServices = await prisma.service.findMany({
+    where: { id: { not: isNew ? undefined : id } },
+    include: { translations: { where: { locale: "id" } } },
+    orderBy: { sortOrder: "asc" }
+  });
+
+  let seoMeta: SeoMeta[] = [];
+  if (!isNew) {
+    seoMeta = await prisma.seoMeta.findMany({
+      where: { entityType: "service", entityId: id }
+    });
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
       <AdminPageHeader
@@ -42,7 +69,14 @@ export default async function EditServicePage({
         icon={<Wrench className="size-5" weight="fill" />}
       />
       
-      <ServiceForm serviceId={id} initialData={service} categories={categories} />
+      <ServiceForm 
+        serviceId={id} 
+        initialData={service} 
+        categories={categories} 
+        allProjects={allProjects}
+        allServices={allServices}
+        seoMeta={seoMeta}
+      />
     </div>
   );
 }

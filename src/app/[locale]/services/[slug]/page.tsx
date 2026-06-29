@@ -23,10 +23,22 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   if (!service) return {};
 
+  const seoMeta = await prisma.seoMeta.findUnique({
+    where: { entityType_entityId_locale: { entityType: "service", entityId: service.serviceId, locale: locale as Locale } }
+  });
+
   const dict = await getDictionary(locale as Locale);
   return {
-    title: `${service.title} | ${dict.services.pageTitle} | ${dict.meta.siteTitle}`,
-    description: service.shortDescription,
+    title: seoMeta?.metaTitle || `${service.title} | ${dict.services.pageTitle} | ${dict.meta.siteTitle}`,
+    description: seoMeta?.metaDescription || service.shortDescription,
+    openGraph: {
+      title: seoMeta?.ogTitle || service.title,
+      description: seoMeta?.ogDescription || service.shortDescription,
+      images: seoMeta?.ogImage ? [{ url: seoMeta.ogImage }] : undefined,
+    },
+    alternates: {
+      canonical: seoMeta?.canonicalUrl || undefined
+    }
   };
 }
 
@@ -41,7 +53,9 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
     include: { 
       service: {
         include: {
-          gallery: { include: { media: true } }
+          gallery: { include: { media: true } },
+          projectServices: { include: { project: { include: { translations: true } } } },
+          relatedServices: { include: { translations: true } }
         }
       }
     }
@@ -58,6 +72,9 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
   
   let faq: { question: string; answer: string }[] = [];
   try { faq = JSON.parse(trans.faq); } catch {}
+
+  let processSteps: { title: string; desc: string }[] = [];
+  try { processSteps = JSON.parse(trans.processSteps); } catch {}
 
   return (
     <div className="flex flex-col min-h-screen bg-white pb-0">
@@ -80,6 +97,28 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
                 className="prose-content animate-reveal"
                 dangerouslySetInnerHTML={{ __html: sanitizeRichText(trans.fullDescription) }}
               />
+
+              {processSteps && processSteps.length > 0 && (
+                <div className="mt-16 animate-reveal" style={{ animationDelay: "50ms" }}>
+                  <h3 className="text-2xl font-semibold text-navy mb-8">{locale === "id" ? "Proses Kerja" : "Work Process"}</h3>
+                  <div className="space-y-6">
+                    {processSteps.map((step, i) => (
+                      <div key={i} className="flex gap-6 group">
+                        <div className="flex flex-col items-center">
+                          <div className="w-12 h-12 rounded-full bg-cyan/10 text-cyan font-bold flex items-center justify-center shrink-0 border border-cyan/20 group-hover:bg-cyan group-hover:text-white transition-colors">
+                            {i + 1}
+                          </div>
+                          {i !== processSteps.length - 1 && <div className="w-px h-full bg-gray-200 mt-4 group-hover:bg-cyan/30 transition-colors" />}
+                        </div>
+                        <div className="pb-8">
+                          <h4 className="text-xl font-semibold text-navy mb-2">{step.title}</h4>
+                          <p className="text-gray-600 leading-relaxed">{step.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {benefits && benefits.length > 0 && (
                 <div className="mt-16 animate-reveal" style={{ animationDelay: "100ms" }}>
@@ -155,6 +194,57 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
                     </div>
                   </div>
                 )}
+
+                {/* Related Services */}
+                {service.relatedServices && service.relatedServices.length > 0 && (
+                  <div className="premium-shell">
+                    <div className="premium-core p-6 flex flex-col gap-4">
+                      <h4 className="font-semibold text-navy">{locale === "id" ? "Layanan Terkait" : "Related Services"}</h4>
+                      <div className="flex flex-col gap-3">
+                        {service.relatedServices.map((rs) => {
+                          const trans = rs.translations.find(t => t.locale === locale) || rs.translations[0];
+                          if (!trans) return null;
+                          return (
+                            <Link key={rs.id} href={`/${locale}/services/${trans.slug}`} className="group flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-cyan/30 hover:bg-cyan/5 transition-colors">
+                              {rs.coverImage && (
+                                <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 relative">
+                                  <Image src={rs.coverImage} alt={trans.title} fill className="object-cover" sizes="48px" unoptimized={!rs.coverImage.startsWith("/")} />
+                                </div>
+                              )}
+                              <span className="font-medium text-navy text-sm group-hover:text-cyan transition-colors line-clamp-2">{trans.title}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Related Projects */}
+                {service.projectServices && service.projectServices.length > 0 && (
+                  <div className="premium-shell">
+                    <div className="premium-core p-6 flex flex-col gap-4">
+                      <h4 className="font-semibold text-navy">{locale === "id" ? "Proyek Terkait" : "Related Projects"}</h4>
+                      <div className="flex flex-col gap-3">
+                        {service.projectServices.map((ps) => {
+                          const trans = ps.project.translations.find(t => t.locale === locale) || ps.project.translations[0];
+                          if (!trans) return null;
+                          return (
+                            <Link key={ps.id} href={`/${locale}/experience/${trans.slug}`} className="group flex flex-col gap-2 p-3 rounded-xl border border-gray-100 hover:border-cyan/30 hover:bg-cyan/5 transition-colors">
+                              {ps.project.coverImage && (
+                                <div className="w-full h-24 rounded-lg overflow-hidden shrink-0 relative">
+                                  <Image src={ps.project.coverImage} alt={trans.title} fill className="object-cover" sizes="200px" unoptimized={!ps.project.coverImage.startsWith("/")} />
+                                </div>
+                              )}
+                              <span className="font-medium text-navy text-sm group-hover:text-cyan transition-colors line-clamp-2">{trans.title}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
 

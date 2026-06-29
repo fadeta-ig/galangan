@@ -55,6 +55,13 @@ export default function ServicesSection({
   const subtitle =
     data ? (locale === "id" ? data.contentId : data.contentEn) : dict.sections?.servicesSubtitle ?? "";
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const config = (data as any)?.configObj || {};
+  const ctaPrimaryLabel = locale === "id" 
+    ? (config.ctaPrimaryLabelId || "Lihat Semua") 
+    : (config.ctaPrimaryLabelEn || "View All");
+  const ctaPrimaryUrl = config.ctaPrimaryUrl || `/${locale}/services`;
+
   return (
     <section className="bg-slate-50 py-24 border-y border-slate-200">
       <div className="mx-auto max-w-7xl px-6 md:px-12">
@@ -80,10 +87,10 @@ export default function ServicesSection({
             )}
           </div>
           <Link
-            href={`/${locale}/services`}
+            href={ctaPrimaryUrl}
             className="group inline-flex shrink-0 items-center gap-2.5 self-start rounded-full border border-slate-300 px-7 py-3.5 text-[11px] font-bold uppercase tracking-[0.15em] text-[#0A2463] transition-all duration-300 hover:border-[#0A2463] hover:bg-[#0A2463] hover:text-white md:self-auto"
           >
-            {locale === "id" ? "Lihat Semua" : "View All"}
+            {ctaPrimaryLabel}
             <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" weight="bold" />
           </Link>
         </div>

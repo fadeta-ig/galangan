@@ -278,6 +278,9 @@ model Service {
   translations ServiceTranslation[]
   gallery      ServiceGallery[]
   projectServices ProjectService[]
+  
+  relatedServices Service[] @relation("RelatedServices")
+  relatedTo       Service[] @relation("RelatedServices")
 
   @@map("services")
 }

@@ -73,6 +73,14 @@ export default function StatsSection({
     (locale === "id" ? data?.contentId : data?.contentEn) ||
     "PT. Galangan Kapal Lanciar selalu berkomitmen memberikan pelayanan terbaik bagi perbaikan kapal Anda, didukung oleh fasilitas lengkap dan tim ahli bersertifikasi internasional.";
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const config = (data as any)?.configObj || {};
+  const ctaPrimaryLabel = locale === "id" 
+    ? (config.ctaPrimaryLabelId || "Tentang Kami") 
+    : (config.ctaPrimaryLabelEn || "About Us");
+  const ctaPrimaryUrl = config.ctaPrimaryUrl || `/${locale}/about`;
+  const bgImage = config.bgImage || "/images/hero_shipyard.png";
+
   return (
     <section className="bg-slate-50 pt-20 md:pt-24">
       <div className="mx-auto max-w-7xl px-6 pb-20 md:px-12 md:pb-24">
@@ -95,10 +103,10 @@ export default function StatsSection({
               {body}
             </p>
             <Link
-              href={`/${locale}/about`}
+              href={ctaPrimaryUrl}
               className="group inline-flex shrink-0 items-center gap-2.5 self-start rounded-md border border-[#0A2463] px-6 py-3 text-[12px] font-semibold uppercase tracking-wider text-[#0A2463] transition-all duration-300 hover:bg-[#0A2463] hover:text-white md:self-auto"
             >
-              About Us
+              {ctaPrimaryLabel}
               <ArrowUpRight
                 className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                 weight="bold"
@@ -142,9 +150,10 @@ export default function StatsSection({
         <div className="relative w-full overflow-hidden py-16 md:py-24">
           <div className="absolute inset-0 z-0">
             <Image
-              src="/images/hero_shipyard.png"
+              src={bgImage}
               alt="Shipyard statistics background"
               fill
+              unoptimized={!bgImage.startsWith("/")}
               className="object-cover object-center"
               sizes="100vw"
             />

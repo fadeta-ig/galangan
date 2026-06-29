@@ -37,6 +37,19 @@ export default function ExperienceSection({
         : data.titleEn
       : "Track Record of Optimal Ship Repair Experience";
 
+  const config = data?.configObj || {};
+  const ctaPrimaryLabel = locale === "id" 
+    ? (config.ctaPrimaryLabelId || dict.sections?.viewAllExperience || "Our Experience")
+    : (config.ctaPrimaryLabelEn || dict.sections?.viewAllExperience || "Our Experience");
+  const ctaPrimaryUrl = config.ctaPrimaryUrl || `/${locale}/experience`;
+
+  const customMedia = config.experienceMedia || [];
+  const leftTallImage = customMedia.length > 0 ? (customMedia[0].url || LEFT_TALL) : LEFT_TALL;
+  const rightGridImages = customMedia.length > 1 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ? customMedia.slice(1, 7).map((m: any) => ({ src: m.url, alt: m.filename }))
+    : RIGHT_GRID;
+
   return (
     <section className="bg-white py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6 md:px-12">
@@ -55,10 +68,10 @@ export default function ExperienceSection({
             </h2>
           </div>
           <Link
-            href={`/${locale}/experience`}
+            href={ctaPrimaryUrl}
             className="group inline-flex shrink-0 items-center gap-2.5 self-start rounded-md border border-[#0A2463] px-6 py-3 text-[12px] font-semibold uppercase tracking-wider text-[#0A2463] transition-all duration-300 hover:bg-[#0A2463] hover:text-white md:self-auto"
           >
-            {dict.sections?.viewAllExperience ?? "Our Experience"}
+            {ctaPrimaryLabel}
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" weight="bold" />
           </Link>
         </div>
@@ -72,9 +85,10 @@ export default function ExperienceSection({
             style={{ height: "clamp(280px, 36vw, 540px)" }}
           >
             <Image
-              src={LEFT_TALL}
+              src={leftTallImage}
               alt="Maritime engineer at shipyard"
               fill
+              unoptimized={!leftTallImage.startsWith("/")}
               className="object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:scale-[1.04]"
               sizes="(max-width:1024px) 100vw, 33vw"
             />
@@ -83,7 +97,7 @@ export default function ExperienceSection({
 
           {/* Right 2×3 grid */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:col-span-8">
-            {RIGHT_GRID.map((img, i) => (
+            {rightGridImages.map((img: { src: string; alt: string }, i: number) => (
               <div
                 key={i}
                 className="group relative overflow-hidden rounded-xl"
@@ -96,6 +110,7 @@ export default function ExperienceSection({
                   src={img.src}
                   alt={img.alt}
                   fill
+                  unoptimized={!img.src.startsWith("/")}
                   className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:scale-[1.06]"
                   sizes="(max-width:768px) 50vw, 25vw"
                 />

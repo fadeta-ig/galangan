@@ -40,7 +40,7 @@ export async function saveUser(id: string, formData: FormData) {
     }
 
     if (isNew) {
-      await prisma.user.create({ data });
+      await prisma.user.create({ data: { ...data, password: data.password! } });
     } else {
       // Prevent deactivating or changing role of the last SUPER_ADMIN
       if (role !== "SUPER_ADMIN" || !isActive) {

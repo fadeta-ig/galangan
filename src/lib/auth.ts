@@ -112,7 +112,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
         // Apply short expiration if "remember me" is not checked
-        if ((user as Record<string, unknown>).remember === false) {
+        if ((user as unknown as Record<string, unknown>).remember === false) {
            token.exp = Math.floor(Date.now() / 1000) + 24 * 60 * 60; // 24 hours
         }
       }

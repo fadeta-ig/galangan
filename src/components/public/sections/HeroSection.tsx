@@ -24,6 +24,15 @@ export default function HeroSection({ locale, dict, data }: HeroSectionProps) {
       : (data?.contentEn as string)) ||
     "Mengembalikan kekuatan armada Anda di lautan dengan solusi perbaikan kapal terdepan dan berstandar internasional.";
 
+  const config = data?.configObj || {};
+  const bgImage = config.bgImage || "/images/hero_shipyard.png";
+  
+  const ctaPrimaryLabel = locale === "id" ? (config.ctaPrimaryLabelId || dict.common?.contactUs || "Hubungi Kami") : (config.ctaPrimaryLabelEn || dict.common?.contactUs || "Contact Us");
+  const ctaPrimaryUrl = config.ctaPrimaryUrl || `/${locale}/contact`;
+  
+  const ctaSecondaryLabel = locale === "id" ? (config.ctaSecondaryLabelId || "Layanan Kami") : (config.ctaSecondaryLabelEn || "Our Services");
+  const ctaSecondaryUrl = config.ctaSecondaryUrl || `/${locale}/services`;
+
   return (
     <section
       className="relative w-full overflow-hidden bg-[#0A2463]"
@@ -31,11 +40,12 @@ export default function HeroSection({ locale, dict, data }: HeroSectionProps) {
     >
       <div className="absolute inset-0 z-0 lg:hidden">
         <Image
-          src="/images/hero_shipyard.png"
+          src={bgImage}
           alt="Galangan Kapal Lanciar Shipyard"
           fill
           priority
           quality={90}
+          unoptimized={!bgImage.startsWith("/")}
           className="object-cover object-center"
           sizes="100vw"
         />
@@ -44,11 +54,12 @@ export default function HeroSection({ locale, dict, data }: HeroSectionProps) {
 
       <div className="absolute inset-y-0 right-0 z-0 hidden w-[45%] lg:block">
         <Image
-          src="/images/hero_shipyard.png"
+          src={bgImage}
           alt="Galangan Kapal Lanciar Shipyard"
           fill
           priority
           quality={90}
+          unoptimized={!bgImage.startsWith("/")}
           className="object-cover object-center"
           sizes="45vw"
         />
@@ -86,20 +97,20 @@ export default function HeroSection({ locale, dict, data }: HeroSectionProps) {
 
           <div className="flex flex-wrap items-center gap-4">
             <Link
-              href={`/${locale}/contact`}
+              href={ctaPrimaryUrl}
               className="group inline-flex min-h-12 items-center gap-3 rounded-md bg-white px-7 py-3 text-[13px] font-semibold uppercase tracking-[0.08em] text-[#0A2463] shadow-[0_14px_30px_rgba(0,0,0,0.16)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:bg-[#E7F8FB]"
             >
-              {dict.common.contactUs}
+              {ctaPrimaryLabel}
               <ArrowRight
                 className="size-4 transition-transform duration-300 group-hover:translate-x-1"
                 weight="bold"
               />
             </Link>
             <Link
-              href={`/${locale}/services`}
+              href={ctaSecondaryUrl}
               className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/35 px-7 py-3 text-[13px] font-semibold uppercase tracking-[0.08em] text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:bg-white hover:text-[#0A2463]"
             >
-              {locale === "id" ? "Layanan Kami" : "Our Services"}
+              {ctaSecondaryLabel}
             </Link>
           </div>
         </div>

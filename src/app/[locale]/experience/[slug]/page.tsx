@@ -23,10 +23,22 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   if (!project) return {};
 
+  const seoMeta = await prisma.seoMeta.findUnique({
+    where: { entityType_entityId_locale: { entityType: "project", entityId: project.projectId, locale: locale as Locale } }
+  });
+
   const dict = await getDictionary(locale as Locale);
   return {
-    title: `${project.title} | ${dict.experience.pageTitle} | ${dict.meta.siteTitle}`,
-    description: project.shortDescription,
+    title: seoMeta?.metaTitle || `${project.title} | ${dict.experience.pageTitle} | ${dict.meta.siteTitle}`,
+    description: seoMeta?.metaDescription || project.shortDescription,
+    openGraph: {
+      title: seoMeta?.ogTitle || project.title,
+      description: seoMeta?.ogDescription || project.shortDescription,
+      images: seoMeta?.ogImage ? [{ url: seoMeta.ogImage }] : undefined,
+    },
+    alternates: {
+      canonical: seoMeta?.canonicalUrl || undefined
+    }
   };
 }
 
@@ -41,10 +53,11 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
     include: { 
       project: {
         include: {
-          gallery: { include: { media: true } },
+          gallery: { include: { media: true }, orderBy: { sortOrder: 'asc' } },
           category: {
             include: { translations: { where: { locale: locale as Locale } } }
-          }
+          },
+          projectServices: { include: { service: { include: { translations: true } } } }
         }
       }
     }
@@ -181,6 +194,31 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                     )}
                   </div>
                 </div>
+
+                {/* Related Services */}
+                {project.projectServices && project.projectServices.length > 0 && (
+                  <div className="premium-shell">
+                    <div className="premium-core p-6 flex flex-col gap-4">
+                      <h4 className="font-semibold text-navy">{locale === "id" ? "Layanan Terkait" : "Related Services"}</h4>
+                      <div className="flex flex-col gap-3">
+                        {project.projectServices.map((ps) => {
+                          const trans = ps.service.translations.find(t => t.locale === locale) || ps.service.translations[0];
+                          if (!trans) return null;
+                          return (
+                            <Link key={ps.id} href={`/${locale}/services/${trans.slug}`} className="group flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-cyan/30 hover:bg-cyan/5 transition-colors">
+                              {ps.service.coverImage && (
+                                <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 relative">
+                                  <Image src={ps.service.coverImage} alt={trans.title} fill className="object-cover" sizes="48px" unoptimized={!ps.service.coverImage.startsWith("/")} />
+                                </div>
+                              )}
+                              <span className="font-medium text-navy text-sm group-hover:text-cyan transition-colors line-clamp-2">{trans.title}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="premium-shell">
                   <div className="premium-core p-8 bg-navy text-white border-none text-center">

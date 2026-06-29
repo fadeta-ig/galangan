@@ -14,13 +14,35 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ImageUploader from "@/components/admin/ui/ImageUploader";
+
+export type Option = { id: string; title: string; url?: string | null };
 
 type HomepageSectionConfig = {
   bgImage?: string;
+  contentSelection?: "latest" | "featured" | "manual";
+  selectedIds?: string[];
+  selectedMediaIds?: string[];
+  ctaPrimaryLabelId?: string;
+  ctaPrimaryLabelEn?: string;
+  ctaPrimaryUrl?: string;
+  ctaSecondaryLabelId?: string;
+  ctaSecondaryLabelEn?: string;
+  ctaSecondaryUrl?: string;
 };
 
-function SectionEditor({ section }: { section: HomepageSection }) {
+type HomepageClientProps = {
+  sections: HomepageSection[];
+  options: {
+    services: Option[];
+    projects: Option[];
+    news: Option[];
+    media: Option[];
+  };
+};
+
+function SectionEditor({ section, options }: { section: HomepageSection; options: HomepageClientProps["options"] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -34,6 +56,26 @@ function SectionEditor({ section }: { section: HomepageSection }) {
 
   const config = JSON.parse(section.config || "{}") as HomepageSectionConfig;
   const [bgImage, setBgImage] = useState(config.bgImage || "");
+  const [contentSelection, setContentSelection] = useState<string>(config.contentSelection || "featured");
+  const [selectedIds, setSelectedIds] = useState<string[]>(config.selectedIds || []);
+  const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>(config.selectedMediaIds || []);
+
+  const [ctaPrimaryLabelId, setCtaPrimaryLabelId] = useState(config.ctaPrimaryLabelId || "");
+  const [ctaPrimaryLabelEn, setCtaPrimaryLabelEn] = useState(config.ctaPrimaryLabelEn || "");
+  const [ctaPrimaryUrl, setCtaPrimaryUrl] = useState(config.ctaPrimaryUrl || "");
+  
+  const [ctaSecondaryLabelId, setCtaSecondaryLabelId] = useState(config.ctaSecondaryLabelId || "");
+  const [ctaSecondaryLabelEn, setCtaSecondaryLabelEn] = useState(config.ctaSecondaryLabelEn || "");
+  const [ctaSecondaryUrl, setCtaSecondaryUrl] = useState(config.ctaSecondaryUrl || "");
+
+  const optionsKey = section.sectionType === "experience" ? "projects" : section.sectionType;
+  const hasContentSelection = ["services", "projects", "experience", "news", "gallery"].includes(section.sectionType) || optionsKey in options;
+  const availableOptions = hasContentSelection ? options[optionsKey as keyof typeof options] || [] : [];
+  
+  // Hardcoded for gallery if sectionType is media/gallery, but we'll use `media`
+  const selectionOptions = section.sectionType === "gallery" || section.sectionType === "media" 
+    ? options.media 
+    : availableOptions;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,7 +89,19 @@ function SectionEditor({ section }: { section: HomepageSection }) {
     formData.set("isActive", isActive.toString());
     formData.set("sortOrder", sortOrder.toString());
     
-    const updatedConfig = { ...config, bgImage };
+    const updatedConfig: HomepageSectionConfig = {
+      ...config,
+      bgImage,
+      contentSelection: contentSelection as "latest" | "featured" | "manual",
+      selectedIds,
+      selectedMediaIds,
+      ctaPrimaryLabelId,
+      ctaPrimaryLabelEn,
+      ctaPrimaryUrl,
+      ctaSecondaryLabelId,
+      ctaSecondaryLabelEn,
+      ctaSecondaryUrl,
+    };
     formData.set("config", JSON.stringify(updatedConfig));
 
     startTransition(async () => {
@@ -80,7 +134,7 @@ function SectionEditor({ section }: { section: HomepageSection }) {
 
       {isOpen && (
         <div className="border-t border-border bg-card p-4">
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {message && (
               <Alert variant={message.type === "success" ? "default" : "destructive"} className={message.type === "success" ? "bg-emerald-50 text-emerald-800 border-emerald-200" : ""}>
                 <AlertDescription>{message.text}</AlertDescription>
@@ -104,7 +158,7 @@ function SectionEditor({ section }: { section: HomepageSection }) {
                     </div>
                     <div className="space-y-2">
                       <Label>Description / Content ({locale.toUpperCase()})</Label>
-                      {section.sectionType === "hero" || section.sectionType === "cta" ? (
+                      {section.sectionType === "hero" || section.sectionType === "cta" || section.sectionType === "services" || section.sectionType === "statistics" || section.sectionType === "news" || section.sectionType === "experience" ? (
                         <Textarea
                           name={isId ? "contentId" : "contentEn"}
                           value={isId ? contentId : contentEn}
@@ -118,10 +172,112 @@ function SectionEditor({ section }: { section: HomepageSection }) {
                         />
                       )}
                     </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                      <div className="space-y-2 border p-3 rounded-md">
+                        <Label>Primary CTA ({locale.toUpperCase()})</Label>
+                        <Input
+                          placeholder="Label (e.g. Learn More)"
+                          value={isId ? ctaPrimaryLabelId : ctaPrimaryLabelEn}
+                          onChange={(e) => isId ? setCtaPrimaryLabelId(e.target.value) : setCtaPrimaryLabelEn(e.target.value)}
+                        />
+                        {isId && (
+                           <Input
+                             placeholder="URL (e.g. /services)"
+                             value={ctaPrimaryUrl}
+                             onChange={(e) => setCtaPrimaryUrl(e.target.value)}
+                           />
+                        )}
+                      </div>
+                      <div className="space-y-2 border p-3 rounded-md">
+                        <Label>Secondary CTA ({locale.toUpperCase()})</Label>
+                        <Input
+                          placeholder="Label (e.g. Contact Us)"
+                          value={isId ? ctaSecondaryLabelId : ctaSecondaryLabelEn}
+                          onChange={(e) => isId ? setCtaSecondaryLabelId(e.target.value) : setCtaSecondaryLabelEn(e.target.value)}
+                        />
+                        {isId && (
+                           <Input
+                             placeholder="URL (e.g. /contact)"
+                             value={ctaSecondaryUrl}
+                             onChange={(e) => setCtaSecondaryUrl(e.target.value)}
+                           />
+                        )}
+                      </div>
+                    </div>
                   </div>
                 );
               }}
             </LanguageTabs>
+
+            {hasContentSelection && (
+              <div className="space-y-3 border-t border-border pt-4">
+                <Label>Content Selection Mode</Label>
+                <Select value={contentSelection} onValueChange={setContentSelection}>
+                  <SelectTrigger className="w-full sm:w-64">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="featured">Featured Items</SelectItem>
+                    <SelectItem value="latest">Latest Items</SelectItem>
+                    <SelectItem value="manual">Manual Selection</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {contentSelection === "manual" && (
+                  <div className="mt-3 space-y-2 max-h-60 overflow-y-auto border border-border p-3 rounded-md bg-muted/20">
+                    <Label className="mb-2 block text-xs text-muted-foreground">Select items to display:</Label>
+                    {selectionOptions.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No items available.</p>
+                    ) : (
+                      selectionOptions.map(opt => (
+                        <label key={opt.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-muted/50 p-1.5 rounded-sm">
+                          <input 
+                            type="checkbox" 
+                            className="rounded border-gray-300 w-4 h-4 text-primary focus:ring-primary"
+                            checked={selectedIds.includes(opt.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) setSelectedIds([...selectedIds, opt.id]);
+                              else setSelectedIds(selectedIds.filter(id => id !== opt.id));
+                            }}
+                          />
+                          <span className="flex-1 truncate">{opt.title}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {section.sectionType === "experience" && (
+              <div className="space-y-3 border-t border-border pt-4">
+                <Label>Media / Gallery Selection (7 images recommended)</Label>
+                <div className="mt-3 space-y-2 max-h-60 overflow-y-auto border border-border p-3 rounded-md bg-muted/20">
+                  <Label className="mb-2 block text-xs text-muted-foreground">Select media items for the gallery:</Label>
+                  {options.media.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No media available.</p>
+                  ) : (
+                    options.media.map(opt => (
+                      <label key={opt.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-muted/50 p-1.5 rounded-sm">
+                        <input 
+                          type="checkbox" 
+                          className="rounded border-gray-300 w-4 h-4 text-primary focus:ring-primary"
+                          checked={selectedMediaIds.includes(opt.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) setSelectedMediaIds([...selectedMediaIds, opt.id]);
+                            else setSelectedMediaIds(selectedMediaIds.filter(id => id !== opt.id));
+                          }}
+                        />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {opt.url && <img src={opt.url} alt={opt.title} className="w-8 h-8 object-cover rounded" />}
+                        <span className="flex-1 truncate">{opt.title}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 gap-5 border-t border-border pt-4 sm:grid-cols-2">
               <div className="flex flex-col gap-3">
@@ -186,11 +342,11 @@ function SectionEditor({ section }: { section: HomepageSection }) {
   );
 }
 
-export default function HomepageClient({ sections }: { sections: HomepageSection[] }) {
+export default function HomepageClient({ sections, options }: HomepageClientProps) {
   return (
     <div className="space-y-3">
       {sections.map((section) => (
-        <SectionEditor key={section.id} section={section} />
+        <SectionEditor key={section.id} section={section} options={options} />
       ))}
     </div>
   );

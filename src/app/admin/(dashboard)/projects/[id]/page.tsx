@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { SeoMeta } from "@prisma/client";
 import ProjectForm from "./ProjectForm";
 import { notFound } from "next/navigation";
 import { Anchor } from "@phosphor-icons/react/dist/ssr";
@@ -24,6 +25,7 @@ export default async function EditProjectPage({
       include: {
         translations: true,
         projectServices: true,
+        gallery: { include: { media: true }, orderBy: { sortOrder: "asc" } },
       },
     });
 
@@ -43,6 +45,13 @@ export default async function EditProjectPage({
     }),
   ]);
 
+  let seoMeta: SeoMeta[] = [];
+  if (!isNew) {
+    seoMeta = await prisma.seoMeta.findMany({
+      where: { entityType: "project", entityId: id }
+    });
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
       <AdminPageHeader
@@ -51,7 +60,13 @@ export default async function EditProjectPage({
         icon={<Anchor className="size-5" weight="fill" />}
       />
       
-      <ProjectForm projectId={id} initialData={project} categories={categories} services={services} />
+      <ProjectForm 
+        projectId={id} 
+        initialData={project} 
+        categories={categories} 
+        services={services} 
+        seoMeta={seoMeta}
+      />
     </div>
   );
 }
