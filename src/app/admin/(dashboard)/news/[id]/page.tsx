@@ -40,7 +40,7 @@ export default async function EditNewsPage({
       orderBy: { sortOrder: "asc" },
     }),
     prisma.newsPost.findMany({
-      where: { id: { not: isNew ? undefined : id } },
+      where: { status: "PUBLISHED", id: { not: isNew ? undefined : id } },
       include: { translations: { where: { locale: "id" } } },
       orderBy: { publishDate: "desc" },
     }),

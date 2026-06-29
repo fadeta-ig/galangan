@@ -40,6 +40,7 @@ export default async function EditProjectPage({
       orderBy: { sortOrder: "asc" },
     }),
     prisma.service.findMany({
+      where: { status: "PUBLISHED" },
       include: { translations: true },
       orderBy: { sortOrder: "asc" },
     }),

@@ -44,12 +44,13 @@ export default async function EditServicePage({
   });
 
   const allProjects = await prisma.project.findMany({
+    where: { status: "PUBLISHED" },
     include: { translations: { where: { locale: "id" } } },
     orderBy: { sortOrder: "asc" }
   });
 
   const allServices = await prisma.service.findMany({
-    where: { id: { not: isNew ? undefined : id } },
+    where: { status: "PUBLISHED", id: { not: isNew ? undefined : id } },
     include: { translations: { where: { locale: "id" } } },
     orderBy: { sortOrder: "asc" }
   });
