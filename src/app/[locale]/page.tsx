@@ -132,41 +132,28 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <HeroSection 
-        locale={locale} 
-        dict={dict} 
-        data={getSectionWithConfig("hero")} 
-      />
-      
-      <StatsSection 
-        locale={locale} 
-        dict={dict} 
-        stats={stats} 
-        data={getSectionWithConfig("statistics")} 
-      />
-      
-      <ServicesSection 
-        locale={locale} 
-        dict={dict} 
-        services={services} 
-        data={getSectionWithConfig("services")} 
-      />
-      
-      <NewsSection 
-        locale={locale} 
-        dict={dict} 
-        news={news} 
-        data={getSectionWithConfig("news")} 
-      />
+      {sections.map((section) => {
+        const type = section.sectionType;
+        const data = getSectionWithConfig(type);
 
-      <BargeBannerSection />
-      
-      <ExperienceSection 
-        locale={locale} 
-        dict={dict} 
-        projects={projects} 
-        data={getSectionWithConfig("experience")} 
-      />
+        switch (type) {
+          case "hero":
+            return <HeroSection key={type} locale={locale} dict={dict} data={data} />;
+          case "statistics":
+            return <StatsSection key={type} locale={locale} dict={dict} stats={stats} data={data} />;
+          case "services":
+            return <ServicesSection key={type} locale={locale} dict={dict} services={services} data={data} />;
+          case "news":
+            return <NewsSection key={type} locale={locale} dict={dict} news={news} data={data} />;
+          case "experience":
+            return <ExperienceSection key={type} locale={locale} dict={dict} projects={projects} data={data} />;
+          case "project_banner":
+          case "barge_banner":
+            return <BargeBannerSection key={type} />;
+          default:
+            return null;
+        }
+      })}
     </div>
   );
 }

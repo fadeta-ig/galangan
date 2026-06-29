@@ -75,6 +75,19 @@ export async function POST(request: NextRequest) {
       await writeFile(filePath, buffer);
     }
 
+    let finalCategoryId = null;
+    if (categoryId) {
+      try {
+        let category = await prisma.mediaCategory.findUnique({ where: { slug: categoryId } });
+        if (!category) {
+          category = await prisma.mediaCategory.findUnique({ where: { id: categoryId } });
+        }
+        if (category) finalCategoryId = category.id;
+      } catch (e) {
+        console.error("Failed to resolve categoryId", e);
+      }
+    }
+
     // Save to database
     const media = await prisma.media.create({
       data: {
@@ -87,7 +100,7 @@ export async function POST(request: NextRequest) {
         width,
         height,
         mediaType: isImage ? "image" : "document",
-        categoryId: categoryId || null,
+        categoryId: finalCategoryId,
       },
     });
 

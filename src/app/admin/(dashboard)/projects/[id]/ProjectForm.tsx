@@ -89,6 +89,9 @@ export default function ProjectForm({
   const seoId = seoMeta.find(s => s.locale === "id") || {} as SeoMeta;
   const seoEn = seoMeta.find(s => s.locale === "en") || {} as SeoMeta;
 
+  const [ogImageId, setOgImageId] = useState(seoId.ogImage || "");
+  const [ogImageEn, setOgImageEn] = useState(seoEn.ogImage || "");
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -111,6 +114,9 @@ export default function ProjectForm({
 
     formData.set("galleryData", JSON.stringify(gallery.map(g => ({ id: g.id, isBefore: g.isBefore }))));
     formData.set("serviceIds", JSON.stringify(serviceIds));
+
+    formData.set("ogImage_id", ogImageId);
+    formData.set("ogImage_en", ogImageEn);
 
     startTransition(async () => {
       const res = await saveProject(projectId, formData);
@@ -208,6 +214,18 @@ export default function ProjectForm({
                           <div className="space-y-2">
                             <Label>OG Description</Label>
                             <Textarea name={`ogDesc${suffix}`} defaultValue={seo.ogDescription || ""} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>OG Image</Label>
+                            <input type="hidden" name={`ogImage${suffix}`} value={isId ? ogImageId : ogImageEn} />
+                            {(isId ? ogImageId : ogImageEn) ? (
+                              <div className="relative mb-2 h-32 w-full overflow-hidden rounded-xl border border-border bg-muted">
+                                <Image src={isId ? ogImageId : ogImageEn} alt="OG Image" fill className="object-cover" />
+                                <Button type="button" variant="destructive" size="sm" className="absolute right-2 top-2 h-7 px-2" onClick={() => isId ? setOgImageId("") : setOgImageEn("")}>Remove</Button>
+                              </div>
+                            ) : (
+                              <ImageUploader onUploadSuccess={(media) => isId ? setOgImageId(media.url) : setOgImageEn(media.url)} categoryId="projects" />
+                            )}
                           </div>
                           <div className="space-y-2">
                             <Label>Canonical URL</Label>

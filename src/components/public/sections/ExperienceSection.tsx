@@ -29,6 +29,7 @@ export default function ExperienceSection({
   locale,
   dict,
   data,
+  projects = [],
 }: ExperienceSectionProps) {
   const title =
     data
@@ -44,11 +45,30 @@ export default function ExperienceSection({
   const ctaPrimaryUrl = config.ctaPrimaryUrl || `/${locale}/experience`;
 
   const customMedia = config.experienceMedia || [];
-  const leftTallImage = customMedia.length > 0 ? (customMedia[0].url || LEFT_TALL) : LEFT_TALL;
-  const rightGridImages = customMedia.length > 1 
+  
+  let leftTallImage = LEFT_TALL;
+  let rightGridImages = RIGHT_GRID;
+
+  if (customMedia.length > 0) {
+    leftTallImage = customMedia[0].url || LEFT_TALL;
+    rightGridImages = customMedia.length > 1 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? customMedia.slice(1, 7).map((m: any) => ({ src: m.url, alt: m.filename }))
+      : RIGHT_GRID;
+  } else if (projects && projects.length > 0) {
+    leftTallImage = projects[0]?.coverImage || LEFT_TALL;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ? customMedia.slice(1, 7).map((m: any) => ({ src: m.url, alt: m.filename }))
-    : RIGHT_GRID;
+    rightGridImages = projects.slice(1, 7).map((p: any) => ({
+      src: p.coverImage || "/images/drydock_aerial.png",
+      alt: p.translations?.[0]?.title || "Project Image"
+    }));
+    if (rightGridImages.length < 6) {
+      rightGridImages = [
+        ...rightGridImages,
+        ...RIGHT_GRID.slice(rightGridImages.length, 6)
+      ];
+    }
+  }
 
   return (
     <section className="bg-white py-20 md:py-28">

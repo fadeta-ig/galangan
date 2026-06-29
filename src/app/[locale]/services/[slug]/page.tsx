@@ -54,8 +54,14 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
       service: {
         include: {
           gallery: { include: { media: true } },
-          projectServices: { include: { project: { include: { translations: true } } } },
-          relatedServices: { include: { translations: true } }
+          projectServices: { 
+            where: { project: { status: 'PUBLISHED' } },
+            include: { project: { include: { translations: true } } } 
+          },
+          relatedServices: { 
+            where: { status: 'PUBLISHED' },
+            include: { translations: true } 
+          }
         }
       }
     }

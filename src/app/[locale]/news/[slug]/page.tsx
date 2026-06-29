@@ -61,6 +61,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
             include: { tag: { include: { translations: { where: { locale: locale as Locale } } } } }
           },
           relatedPosts: {
+            where: { status: 'PUBLISHED' },
             include: { translations: { where: { locale: locale as Locale } } }
           }
         }

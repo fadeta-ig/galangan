@@ -57,7 +57,10 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
           category: {
             include: { translations: { where: { locale: locale as Locale } } }
           },
-          projectServices: { include: { service: { include: { translations: true } } } }
+          projectServices: { 
+            where: { service: { status: 'PUBLISHED' } },
+            include: { service: { include: { translations: true } } } 
+          }
         }
       }
     }
