@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "siteTitle": "Galangan Kapal - Solusi Maritim Terpercaya",
+    "siteDescription": "Galangan kapal terpercaya untuk perbaikan kapal, pembuatan kapal baru, dan layanan docking dengan presisi dan keselamatan untuk setiap kelas kapal.",
+    "ogSiteName": "Galangan Kapal"
+  },
+  "nav": {
+    "home": "Beranda",
+    "about": "Tentang Kami",
+    "services": "Layanan",
+    "experience": "Pengalaman",
+    "news": "Berita",
+    "gallery": "Galeri",
+    "contact": "Kontak"
+  },
+  "common": {
+    "readMore": "Selengkapnya",
+    "learnMore": "Pelajari Lebih Lanjut",
+    "viewAll": "Lihat Semua",
+    "contactUs": "Hubungi Kami",
+    "sendMessage": "Kirim Pesan",
+    "subscribe": "Berlangganan",
+    "loadMore": "Muat Lebih Banyak",
+    "search": "Cari",
+    "filter": "Filter",
+    "all": "Semua",
+    "back": "Kembali",
+    "next": "Selanjutnya",
+    "previous": "Sebelumnya",
+    "share": "Bagikan",
+    "download": "Unduh",
+    "close": "Tutup",
+    "chatWhatsApp": "Chat via WhatsApp"
+  },
+  "hero": {
+    "badge": "Mitra Galangan Terpercaya",
+    "headline": "Keunggulan Rekayasa Maritim",
+    "subheadline": "Solusi perbaikan kapal, pembuatan kapal baru, dan layanan docking dengan presisi dan keselamatan untuk setiap kelas kapal.",
+    "ctaPrimary": "Hubungi Kami",
+    "ctaSecondary": "Layanan Kami"
+  },
+  "sections": {
+    "servicesTitle": "Layanan Kami",
+    "servicesSubtitle": "Solusi maritim komprehensif dengan standar internasional.",
+    "seeAllServices": "Lihat Semua Layanan",
+    "newsTitle": "Sorotan Galangan",
+    "newsSubtitle": "Berita dan update terbaru dari galangan kapal kami.",
+    "seeAllNews": "Lihat Semua Berita",
+    "experienceTitle": "Pengalaman Kami",
+    "experienceSubtitle": "Rekam jejak terbukti di berbagai jenis kapal dan layanan maritim.",
+    "viewAllExperience": "Lihat Semua Pengalaman",
+    "projectBannerTitle": "Dibangun untuk Laut Lepas",
+    "projectBannerSubtitle": "Dari perbaikan hingga peluncuran, kami menghadirkan keunggulan rekayasa maritim.",
+    "statisticsTitle": "Pencapaian Kami"
+  },
+  "about": {
+    "pageTitle": "Tentang Kami",
+    "pageSubtitle": "Warisan rekayasa presisi, keahlian maritim, dan dedikasi layanan di jantung industri pelayaran Indonesia.",
+    "whoWeAre": "Siapa Kami",
+    "visionTitle": "Visi",
+    "missionTitle": "Misi",
+    "valuesTitle": "Nilai Inti Kami",
+    "facilitiesTitle": "Fasilitas Kami",
+    "historyTitle": "Sejarah Perusahaan"
+  },
+  "contact": {
+    "pageTitle": "Hubungi Kami",
+    "pageSubtitle": "Kami siap membantu kebutuhan maritim Anda. Hubungi tim kami.",
+    "getInTouch": "Hubungi Kami",
+    "formTitle": "Kirim Pesan",
+    "fullName": "Nama Lengkap",
+    "email": "Email",
+    "phone": "Nomor Telepon",
+    "companyName": "Nama Perusahaan",
+    "serviceInterest": "Layanan yang Diminati",
+    "subject": "Subjek",
+    "message": "Pesan",
+    "address": "Alamat",
+    "businessHours": "Jam Operasional",
+    "successMessage": "Pesan Anda berhasil dikirim. Tim kami akan menghubungi Anda segera.",
+    "errorMessage": "Terjadi kesalahan. Silakan coba lagi.",
+    "validationError": "Periksa kembali data formulir Anda.",
+    "rateLimitError": "Terlalu banyak percobaan. Silakan coba lagi nanti."
+  },
+  "footer": {
+    "quickLinks": "Tautan Cepat",
+    "ourServices": "Layanan Kami",
+    "getInTouch": "Hubungi Kami",
+    "newsletter": "Berlangganan newsletter kami",
+    "newsletterPlaceholder": "Masukkan email Anda",
+    "copyright": "Galangan Kapal. Hak cipta dilindungi."
+  },
+  "gallery": {
+    "pageTitle": "Galeri",
+    "pageSubtitle": "Dokumentasi visual dari operasi dan proyek galangan kapal kami."
+  },
+  "experience": {
+    "pageTitle": "Pengalaman",
+    "pageSubtitle": "Proyek-proyek yang telah kami selesaikan dengan keunggulan.",
+    "client": "Klien",
+    "vesselType": "Tipe Kapal",
+    "year": "Tahun",
+    "location": "Lokasi",
+    "relatedServices": "Layanan Terkait",
+    "relatedProjects": "Proyek Terkait"
+  },
+  "news": {
+    "pageTitle": "Berita",
+    "pageSubtitle": "Update terbaru dari galangan kapal kami.",
+    "publishedAt": "Dipublikasikan",
+    "author": "Penulis",
+    "relatedArticles": "Artikel Terkait",
+    "tags": "Tag"
+  },
+  "services": {
+    "pageTitle": "Layanan",
+    "pageSubtitle": "Solusi maritim komprehensif untuk setiap kebutuhan kapal Anda.",
+    "benefits": "Keunggulan",
+    "process": "Proses Kami",
+    "faq": "Pertanyaan Umum",
+    "needService": "Butuh Layanan Ini?",
+    "relatedServices": "Layanan Terkait"
+  }
+}

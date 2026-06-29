@@ -1,0 +1,578 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum Locale {
+  id
+  en
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum InquiryStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+// ============================================================
+// AUTH & USERS
+// ============================================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          UserRole  @default(EDITOR)
+  isActive      Boolean   @default(true)
+  avatar        String?
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  auditLogs     AuditLog[]
+  newsPosts     NewsPost[]  @relation("NewsAuthor")
+
+  @@map("users")
+}
+
+// ============================================================
+// SITE SETTINGS
+// ============================================================
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.LongText
+  type      String   @default("text") // text, image, json, html
+  group     String   @default("general") // general, contact, social, seo, appearance
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+// ============================================================
+// MENU
+// ============================================================
+
+model MenuItem {
+  id        String   @id @default(cuid())
+  parentId  String?
+  parent    MenuItem?  @relation("MenuTree", fields: [parentId], references: [id])
+  children  MenuItem[] @relation("MenuTree")
+  labelId   String
+  labelEn   String
+  url       String
+  target    String   @default("_self")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("menu_items")
+}
+
+// ============================================================
+// MEDIA
+// ============================================================
+
+model Media {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  thumbnailUrl String?
+  width        Int?
+  height       Int?
+  mediaType    String   @default("image") // image, video, document
+  embedUrl     String?  // YouTube/Vimeo embed
+  categoryId   String?
+  category     MediaCategory? @relation(fields: [categoryId], references: [id])
+  isFeatured   Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  translations   MediaTranslation[]
+  serviceGallery ServiceGallery[]
+  projectGallery ProjectGallery[]
+
+  @@map("media")
+}
+
+model MediaTranslation {
+  id       String @id @default(cuid())
+  mediaId  String
+  locale   Locale
+  title    String @default("")
+  caption  String @default("")
+  altText  String @default("")
+  media    Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaId, locale])
+  @@map("media_translations")
+}
+
+model MediaCategory {
+  id        String   @id @default(cuid())
+  nameId    String
+  nameEn    String
+  slug      String   @unique
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  media     Media[]
+
+  @@map("media_categories")
+}
+
+// ============================================================
+// HOMEPAGE SECTIONS
+// ============================================================
+
+model HomepageSection {
+  id          String   @id @default(cuid())
+  sectionType String   // hero, company_intro, statistics, services, news, experience, project_banner, cta
+  titleId     String   @default("")
+  titleEn     String   @default("")
+  contentId   String   @db.LongText @default("")
+  contentEn   String   @db.LongText @default("")
+  config      String   @db.LongText @default("{}") // JSON config for section-specific settings
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("homepage_sections")
+}
+
+model Statistic {
+  id          String   @id @default(cuid())
+  number      Int
+  suffix      String   @default("+")
+  labelId     String
+  labelEn     String
+  description String?
+  icon        String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("statistics")
+}
+
+// ============================================================
+// PAGES
+// ============================================================
+
+model Page {
+  id           String   @id @default(cuid())
+  heroImage    String?
+  status       ContentStatus @default(DRAFT)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  translations PageTranslation[]
+  sections     PageSection[]
+
+  @@map("pages")
+}
+
+model PageTranslation {
+  id          String @id @default(cuid())
+  pageId      String
+  locale      Locale
+  title       String
+  slug        String
+  content     String @db.LongText @default("")
+  page        Page   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, locale])
+  @@unique([slug, locale])
+  @@map("page_translations")
+}
+
+model PageSection {
+  id          String @id @default(cuid())
+  pageId      String
+  sectionType String // text, image, gallery, cta, custom
+  contentId   String @db.LongText @default("")
+  contentEn   String @db.LongText @default("")
+  config      String @db.LongText @default("{}")
+  sortOrder   Int    @default(0)
+  isActive    Boolean @default(true)
+  page        Page   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@map("page_sections")
+}
+
+// ============================================================
+// SERVICES
+// ============================================================
+
+model ServiceCategory {
+  id        String   @id @default(cuid())
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  translations ServiceCategoryTranslation[]
+  services     Service[]
+
+  @@map("service_categories")
+}
+
+model ServiceCategoryTranslation {
+  id         String @id @default(cuid())
+  categoryId String
+  locale     Locale
+  name       String
+  slug       String
+  category   ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, locale])
+  @@unique([slug, locale])
+  @@map("service_category_translations")
+}
+
+model Service {
+  id           String   @id @default(cuid())
+  icon         String?
+  coverImage   String?
+  categoryId   String?
+  category     ServiceCategory? @relation(fields: [categoryId], references: [id])
+  isFeatured   Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  status       ContentStatus @default(DRAFT)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  translations ServiceTranslation[]
+  gallery      ServiceGallery[]
+  projectServices ProjectService[]
+
+  @@map("services")
+}
+
+model ServiceTranslation {
+  id               String @id @default(cuid())
+  serviceId        String
+  locale           Locale
+  title            String
+  slug             String
+  shortDescription String @db.Text @default("")
+  fullDescription  String @db.LongText @default("")
+  benefits         String @db.LongText @default("[]") // JSON array
+  processSteps     String @db.LongText @default("[]") // JSON array
+  faq              String @db.LongText @default("[]") // JSON array
+  service          Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, locale])
+  @@unique([slug, locale])
+  @@map("service_translations")
+}
+
+model ServiceGallery {
+  id        String @id @default(cuid())
+  serviceId String
+  mediaId   String
+  sortOrder Int    @default(0)
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  media     Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@map("service_gallery")
+}
+
+// ============================================================
+// PROJECTS / EXPERIENCE
+// ============================================================
+
+model ProjectCategory {
+  id        String   @id @default(cuid())
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  translations ProjectCategoryTranslation[]
+  projects     Project[]
+
+  @@map("project_categories")
+}
+
+model ProjectCategoryTranslation {
+  id         String @id @default(cuid())
+  categoryId String
+  locale     Locale
+  name       String
+  slug       String
+  category   ProjectCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, locale])
+  @@unique([slug, locale])
+  @@map("project_category_translations")
+}
+
+model Project {
+  id              String   @id @default(cuid())
+  coverImage      String?
+  categoryId      String?
+  category        ProjectCategory? @relation(fields: [categoryId], references: [id])
+  clientName      String?
+  showClientName  Boolean  @default(false)
+  vesselType      String?
+  projectYear     Int?
+  location        String?
+  isFeatured      Boolean  @default(false)
+  sortOrder       Int      @default(0)
+  status          ContentStatus @default(DRAFT)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  translations    ProjectTranslation[]
+  gallery         ProjectGallery[]
+  projectServices ProjectService[]
+
+  @@map("projects")
+}
+
+model ProjectTranslation {
+  id               String @id @default(cuid())
+  projectId        String
+  locale           Locale
+  title            String
+  slug             String
+  shortDescription String @db.Text @default("")
+  fullDescription  String @db.LongText @default("")
+  scopeSummary     String @db.LongText @default("")
+  project          Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, locale])
+  @@unique([slug, locale])
+  @@map("project_translations")
+}
+
+model ProjectGallery {
+  id        String @id @default(cuid())
+  projectId String
+  mediaId   String
+  sortOrder Int    @default(0)
+  isBefore  Boolean @default(false) // for before/after comparison
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  media     Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@map("project_gallery")
+}
+
+model ProjectService {
+  id        String @id @default(cuid())
+  projectId String
+  serviceId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, serviceId])
+  @@map("project_services")
+}
+
+// ============================================================
+// NEWS
+// ============================================================
+
+model NewsCategory {
+  id        String   @id @default(cuid())
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  translations NewsCategoryTranslation[]
+  posts        NewsPost[]
+
+  @@map("news_categories")
+}
+
+model NewsCategoryTranslation {
+  id         String @id @default(cuid())
+  categoryId String
+  locale     Locale
+  name       String
+  slug       String
+  category   NewsCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, locale])
+  @@unique([slug, locale])
+  @@map("news_category_translations")
+}
+
+model NewsPost {
+  id            String   @id @default(cuid())
+  featuredImage String?
+  categoryId    String?
+  category      NewsCategory? @relation(fields: [categoryId], references: [id])
+  authorId      String?
+  author        User?    @relation("NewsAuthor", fields: [authorId], references: [id])
+  publishDate   DateTime @default(now())
+  isFeatured    Boolean  @default(false)
+  sortOrder     Int      @default(0)
+  status        ContentStatus @default(DRAFT)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  translations  NewsPostTranslation[]
+  tags          NewsPostTag[]
+
+  @@map("news_posts")
+}
+
+model NewsPostTranslation {
+  id       String @id @default(cuid())
+  postId   String
+  locale   Locale
+  title    String
+  slug     String
+  excerpt  String @db.Text @default("")
+  content  String @db.LongText @default("")
+  post     NewsPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, locale])
+  @@unique([slug, locale])
+  @@map("news_post_translations")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  translations TagTranslation[]
+  posts        NewsPostTag[]
+
+  @@map("tags")
+}
+
+model TagTranslation {
+  id     String @id @default(cuid())
+  tagId  String
+  locale Locale
+  name   String
+  slug   String
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([tagId, locale])
+  @@unique([slug, locale])
+  @@map("tag_translations")
+}
+
+model NewsPostTag {
+  id     String @id @default(cuid())
+  postId String
+  tagId  String
+  post   NewsPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, tagId])
+  @@map("news_post_tags")
+}
+
+// ============================================================
+// INQUIRY & NEWSLETTER
+// ============================================================
+
+model Inquiry {
+  id              String        @id @default(cuid())
+  fullName        String
+  email           String
+  phone           String?
+  companyName     String?
+  serviceInterest String?
+  subject         String
+  message         String        @db.LongText
+  status          InquiryStatus @default(NEW)
+  internalNotes   String?       @db.LongText
+  ipAddress       String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("inquiries")
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("newsletter_subscribers")
+}
+
+// ============================================================
+// SEO
+// ============================================================
+
+model SeoMeta {
+  id              String   @id @default(cuid())
+  entityType      String   // page, service, project, news
+  entityId        String
+  locale          Locale
+  metaTitle       String?  @db.Text
+  metaDescription String?  @db.Text
+  ogTitle         String?  @db.Text
+  ogDescription   String?  @db.Text
+  ogImage         String?
+  canonicalUrl    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([entityType, entityId, locale])
+  @@index([entityType, entityId])
+  @@map("seo_meta")
+}
+
+// ============================================================
+// AUDIT LOG
+// ============================================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action      String   // login, create, update, delete, publish, unpublish, settings_update
+  module      String   // user, page, service, project, news, gallery, media, settings, inquiry
+  targetId    String?
+  targetTitle String?
+  details     String?  @db.LongText
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@map("audit_logs")
+}

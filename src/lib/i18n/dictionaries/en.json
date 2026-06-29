@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "siteTitle": "Galangan Kapal - Trusted Maritime Solutions",
+    "siteDescription": "Trusted shipyard for ship repair, shipbuilding, and docking solutions with precision and safety for every vessel class.",
+    "ogSiteName": "Galangan Kapal"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "services": "Services",
+    "experience": "Experience",
+    "news": "News",
+    "gallery": "Gallery",
+    "contact": "Contact"
+  },
+  "common": {
+    "readMore": "Read More",
+    "learnMore": "Learn More",
+    "viewAll": "View All",
+    "contactUs": "Contact Us",
+    "sendMessage": "Send Message",
+    "subscribe": "Subscribe",
+    "loadMore": "Load More",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "share": "Share",
+    "download": "Download",
+    "close": "Close",
+    "chatWhatsApp": "Chat on WhatsApp"
+  },
+  "hero": {
+    "badge": "Trusted Shipyard Partner",
+    "headline": "Engineering Maritime Excellence",
+    "subheadline": "Complete ship repair, shipbuilding, and docking solutions with precision and safety for every vessel class.",
+    "ctaPrimary": "Contact Us",
+    "ctaSecondary": "Our Services"
+  },
+  "sections": {
+    "servicesTitle": "Our Services",
+    "servicesSubtitle": "Comprehensive maritime solutions with international standards.",
+    "seeAllServices": "See All Services",
+    "newsTitle": "Shipyard Spotlight",
+    "newsSubtitle": "Latest news and updates from our shipyard operations.",
+    "seeAllNews": "See All News",
+    "experienceTitle": "Our Experience",
+    "experienceSubtitle": "Proven track record across vessel types and maritime services.",
+    "viewAllExperience": "View All Experience",
+    "projectBannerTitle": "Built for the Open Sea",
+    "projectBannerSubtitle": "From repair to launch, we deliver maritime engineering excellence.",
+    "statisticsTitle": "Our Achievements"
+  },
+  "about": {
+    "pageTitle": "About Us",
+    "pageSubtitle": "A legacy of precision engineering, maritime expertise, and dedicated service in the heart of Indonesia's shipping industry.",
+    "whoWeAre": "Who We Are",
+    "visionTitle": "Vision",
+    "missionTitle": "Mission",
+    "valuesTitle": "Our Values",
+    "facilitiesTitle": "Our Facilities",
+    "historyTitle": "Company History"
+  },
+  "contact": {
+    "pageTitle": "Contact Us",
+    "pageSubtitle": "We are ready to assist your maritime needs. Get in touch with our team.",
+    "getInTouch": "Get In Touch",
+    "formTitle": "Send a Message",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "companyName": "Company Name",
+    "serviceInterest": "Service Interest",
+    "subject": "Subject",
+    "message": "Message",
+    "address": "Address",
+    "businessHours": "Business Hours",
+    "successMessage": "Your message has been sent successfully. Our team will contact you shortly.",
+    "errorMessage": "An error occurred. Please try again.",
+    "validationError": "Please check your form data and try again.",
+    "rateLimitError": "Too many submissions. Please try again later."
+  },
+  "footer": {
+    "quickLinks": "Quick Links",
+    "ourServices": "Our Services",
+    "getInTouch": "Get In Touch",
+    "newsletter": "Subscribe to our newsletter",
+    "newsletterPlaceholder": "Enter your email",
+    "copyright": "Galangan Kapal. All rights reserved."
+  },
+  "gallery": {
+    "pageTitle": "Gallery",
+    "pageSubtitle": "Visual documentation of our shipyard operations and projects."
+  },
+  "experience": {
+    "pageTitle": "Experience",
+    "pageSubtitle": "Projects we have completed with excellence.",
+    "client": "Client",
+    "vesselType": "Vessel Type",
+    "year": "Year",
+    "location": "Location",
+    "relatedServices": "Related Services",
+    "relatedProjects": "Related Projects"
+  },
+  "news": {
+    "pageTitle": "News",
+    "pageSubtitle": "Latest updates from our shipyard.",
+    "publishedAt": "Published",
+    "author": "Author",
+    "relatedArticles": "Related Articles",
+    "tags": "Tags"
+  },
+  "services": {
+    "pageTitle": "Services",
+    "pageSubtitle": "Comprehensive maritime solutions for every vessel need.",
+    "benefits": "Benefits",
+    "process": "Our Process",
+    "faq": "Frequently Asked Questions",
+    "needService": "Need This Service?",
+    "relatedServices": "Related Services"
+  }
+}
