@@ -7,7 +7,7 @@ import {
   SquaresFour,
   Gear,
   Users,
-  Browser,
+  Layout,
   Wrench,
   Anchor,
   Newspaper,
@@ -35,7 +35,7 @@ type SidebarUser = {
 
 const contentItems = [
   { name: "Dashboard", href: "/admin", icon: SquaresFour },
-  { name: "Homepage Builder", href: "/admin/homepage", icon: Browser },
+  { name: "Homepage Builder", href: "/admin/homepage", icon: Layout },
   { name: "Services", href: "/admin/services", icon: Wrench },
   { name: "Projects", href: "/admin/projects", icon: Anchor },
   { name: "News", href: "/admin/news", icon: Newspaper },

@@ -15,7 +15,7 @@ import {
 import {
   Anchor,
   ArrowRight,
-  Browser,
+  FileText,
   EnvelopeOpen,
   FolderOpen,
   Newspaper,
@@ -27,7 +27,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 
 const statConfig = [
-  { key: "pages", label: "Published Pages", href: "/admin/pages", icon: Browser },
+  { key: "pages", label: "Published Pages", href: "/admin/pages", icon: FileText },
   { key: "services", label: "Published Services", href: "/admin/services", icon: Wrench },
   { key: "projects", label: "Published Projects", href: "/admin/projects", icon: Anchor },
   { key: "news", label: "Published News", href: "/admin/news", icon: Newspaper },
@@ -37,7 +37,7 @@ const statConfig = [
 ] as const;
 
 const quickActions = [
-  { label: "Create Page", href: "/admin/pages/new", icon: Browser },
+  { label: "Create Page", href: "/admin/pages/new", icon: FileText },
   { label: "Create Service", href: "/admin/services/new", icon: Wrench },
   { label: "Create Project", href: "/admin/projects/new", icon: Anchor },
   { label: "Create News", href: "/admin/news/new", icon: Newspaper },
@@ -176,7 +176,7 @@ export default async function AdminDashboard() {
           <Link key={stat.key} href={stat.href} className="group">
             <Card size="sm" className="h-full rounded-xl border border-[#e7eaf0] bg-white py-0 shadow-sm transition-all hover:shadow-md hover:border-cyan/30">
               <CardContent className="flex items-center gap-4 px-5 py-4">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan/10 text-cyan group-hover:bg-cyan group-hover:text-white transition-colors">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan/10 text-cyan group-hover:bg-cyan group-hover:!text-white transition-colors">
                   <stat.icon className="size-5" weight="duotone" />
                 </div>
                 <div className="min-w-0 flex-1">

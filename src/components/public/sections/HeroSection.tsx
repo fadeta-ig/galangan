@@ -108,7 +108,7 @@ export default function HeroSection({ locale, dict, data }: HeroSectionProps) {
             </Link>
             <Link
               href={ctaSecondaryUrl}
-              className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/35 px-7 py-3 text-[13px] font-semibold uppercase tracking-[0.08em] text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:bg-white hover:text-[#0A2463]"
+              className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/35 px-7 py-3 text-[13px] font-semibold uppercase tracking-[0.08em] text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:bg-white hover:!text-[#0A2463]"
             >
               {ctaSecondaryLabel}
             </Link>
