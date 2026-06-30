@@ -1,4 +1,4 @@
-import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { isValidLocale, type Locale, getLocalizedUrl } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -19,9 +19,14 @@ type ServicesPageProps = {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const dict = await getDictionary(locale as Locale);
+  
+  const page = await prisma.page.findFirst({
+    where: { translations: { some: { slug: { in: ["services", "layanan"] } } } }
+  });
+
   return getSeoMetadata(
     "page",
-    "services",
+    page ? page.id : "services",
     locale as Locale,
     `${dict.services.pageTitle} | ${dict.meta.siteTitle}`,
     dict.services.pageSubtitle,
@@ -149,7 +154,7 @@ export default async function ServicesPage({ params, searchParams }: ServicesPag
                     </p>
                     
                     <Link 
-                      href={`/${locale}/services/${trans.slug}`}
+                      href={getLocalizedUrl(`/services/${trans.slug}`, locale as Locale)}
                       className="group/btn inline-flex items-center gap-2 self-start rounded-md bg-[#0A2463] px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-white transition-all duration-300 hover:bg-[#0D2F7A]"
                     >
                       {dict.common?.readMore || "Info Detail"}

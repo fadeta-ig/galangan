@@ -32,7 +32,10 @@ export default async function NewsPage({
   }
 
   if (status && status !== "ALL") {
-    where.status = status as ContentStatus;
+    const validStatuses: ContentStatus[] = ["DRAFT", "PUBLISHED", "ARCHIVED"];
+    if (validStatuses.includes(status as ContentStatus)) {
+      where.status = status as ContentStatus;
+    }
   }
 
   const [newsList, totalCount] = await Promise.all([

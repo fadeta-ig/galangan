@@ -171,7 +171,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
                         ? "Tim ahli kami siap membantu Anda. Hubungi kami untuk konsultasi teknis atau permintaan penawaran harga."
                         : "Our expert team is ready to assist you. Contact us for technical consultation or a quotation request."}
                     </p>
-                    <Link href={`/${locale}/contact`} className="btn-premium w-full justify-center group bg-cyan hover:bg-cyan-dark text-white">
+                    <Link href={getLocalizedUrl('/contact', locale as Locale)} className="btn-premium w-full justify-center group bg-cyan hover:bg-cyan-dark text-white">
                       <span>{dict.common.contactUs}</span>
                       <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </Link>

@@ -39,7 +39,10 @@ export default async function ProjectsPage({
   }
 
   if (status && status !== "ALL") {
-    where.status = status as ContentStatus;
+    const validStatuses: ContentStatus[] = ["DRAFT", "PUBLISHED", "ARCHIVED"];
+    if (validStatuses.includes(status as ContentStatus)) {
+      where.status = status as ContentStatus;
+    }
   }
 
   const [projects, totalCount] = await Promise.all([

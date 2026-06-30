@@ -19,9 +19,14 @@ type NewsPageProps = {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const dict = await getDictionary(locale as Locale);
+
+  const page = await prisma.page.findFirst({
+    where: { translations: { some: { slug: { in: ["news", "berita"] } } } }
+  });
+
   return getSeoMetadata(
     "page",
-    "news",
+    page ? page.id : "news",
     locale as Locale,
     `${dict.news.pageTitle} | ${dict.meta.siteTitle}`,
     dict.news.pageSubtitle,

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updateSiteSettings } from "./actions";
-import { FloppyDisk } from "@phosphor-icons/react";
+import { FloppyDisk, X } from "@phosphor-icons/react";
 import type { SiteSetting } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -63,7 +63,7 @@ export default function SettingsForm({ settings }: { settings: SiteSetting[] }) 
                       className="absolute right-2 top-2 h-6 w-6 rounded-full"
                       onClick={() => setSiteLogo("")}
                     >
-                      <FloppyDisk className="size-3" /> {/* Using whatever icon, maybe X but Floppy is imported, let's use a text 'X' or import X */}
+                      <X className="size-3" weight="bold" />
                     </Button>
                   </div>
                 ) : (
@@ -84,7 +84,7 @@ export default function SettingsForm({ settings }: { settings: SiteSetting[] }) 
                       className="absolute right-1 top-1 h-5 w-5 rounded-full"
                       onClick={() => setSiteFavicon("")}
                     >
-                      X
+                      <X className="size-3" weight="bold" />
                     </Button>
                   </div>
                 ) : (

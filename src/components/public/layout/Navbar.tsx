@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getLocalizedUrl, type Locale } from "@/lib/i18n/config";
+import { getLocalizedUrl, getOppositeLocaleUrl, type Locale } from "@/lib/i18n/config";
 import { Globe, List, X, Anchor, Wrench, ShieldCheck, PaintBrush, MagnifyingGlass, Nut } from "@phosphor-icons/react";
 
 const getIconEl = (slug: string): React.ReactElement => {
@@ -58,8 +58,7 @@ export default function Navbar({ locale, dict, services = [] }: NavbarProps) {
   }, []);
 
   const switchLocale = () => {
-    const newLocale = locale === "id" ? "en" : "id";
-    return pathname.replace(`/${locale}`, `/${newLocale}`);
+    return getOppositeLocaleUrl(pathname, locale as Locale);
   };
 
   const navLinks = [

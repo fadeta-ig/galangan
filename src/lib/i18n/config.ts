@@ -35,3 +35,21 @@ export function getLocalizedUrl(path: string, locale: Locale): string {
   }
   return `/${locale}${path}`;
 }
+
+export function getOppositeLocaleUrl(pathname: string, currentLocale: Locale): string {
+  const oppositeLocale = currentLocale === "id" ? "en" : "id";
+  const pathWithoutLocale = pathname.replace(`/${currentLocale}`, "");
+  
+  if (!pathWithoutLocale) return `/${oppositeLocale}`;
+
+  let physicalPath = pathWithoutLocale;
+  for (const [base, aliases] of Object.entries(routeAliases)) {
+    const alias = aliases[currentLocale];
+    if (alias && (pathWithoutLocale === alias || pathWithoutLocale.startsWith(`${alias}/`))) {
+      physicalPath = pathWithoutLocale.replace(alias, base);
+      break;
+    }
+  }
+
+  return getLocalizedUrl(physicalPath, oppositeLocale);
+}
