@@ -19,15 +19,26 @@ export default function ServicesClient({
   totalCount,
   currentPage,
   pageSize,
+  searchQuery,
+  statusFilter,
   deleteAction,
 }: {
   services: Record<string, unknown>[];
   totalCount: number;
   currentPage: number;
   pageSize: number;
+  searchQuery: string;
+  statusFilter: string;
   deleteAction: (id: string) => Promise<void>;
 }) {
   const router = useRouter();
+
+  const applyFilters = (newSearch: string, newStatus: string) => {
+    const params = new URLSearchParams();
+    if (newSearch) params.set("search", newSearch);
+    if (newStatus && newStatus !== "ALL") params.set("status", newStatus);
+    router.push(`/admin/services?${params.toString()}`);
+  };
 
   const columns: Column<Record<string, unknown>>[] = [
     {
@@ -79,7 +90,22 @@ export default function ServicesClient({
       onDelete={deleteAction}
       currentPage={currentPage}
       totalPages={Math.ceil(totalCount / pageSize)}
-      onPageChange={(page) => router.push(`/admin/services?page=${page}`)}
+      onPageChange={(page) => {
+        const params = new URLSearchParams();
+        if (searchQuery) params.set("search", searchQuery);
+        if (statusFilter && statusFilter !== "ALL") params.set("status", statusFilter);
+        params.set("page", page.toString());
+        router.push(`/admin/services?${params.toString()}`);
+      }}
+      searchQuery={searchQuery}
+      onSearchChange={(q) => applyFilters(q, statusFilter)}
+      statusFilter={statusFilter}
+      onStatusFilterChange={(s) => applyFilters(searchQuery, s)}
+      statusOptions={[
+        { label: "Published", value: "PUBLISHED" },
+        { label: "Draft", value: "DRAFT" },
+        { label: "Archived", value: "ARCHIVED" },
+      ]}
     />
   );
 }

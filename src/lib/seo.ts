@@ -7,7 +7,8 @@ export async function getSeoMetadata(
   entityId: string,
   locale: Locale,
   fallbackTitle: string,
-  fallbackDescription: string
+  fallbackDescription: string,
+  fallbackImage?: string | null
 ): Promise<Metadata> {
   const seo = await prisma.seoMeta.findUnique({
     where: {
@@ -19,20 +20,29 @@ export async function getSeoMetadata(
     },
   });
 
+  const finalTitle = seo?.metaTitle || fallbackTitle;
+  const finalDescription = seo?.metaDescription || fallbackDescription;
+  const finalOgImage = seo?.ogImage || fallbackImage;
+
   if (!seo) {
     return {
-      title: fallbackTitle,
-      description: fallbackDescription,
+      title: finalTitle,
+      description: finalDescription,
+      openGraph: {
+        title: finalTitle,
+        description: finalDescription,
+        images: finalOgImage ? [{ url: finalOgImage }] : [],
+      }
     };
   }
 
   return {
-    title: seo.metaTitle || fallbackTitle,
-    description: seo.metaDescription || fallbackDescription,
+    title: finalTitle,
+    description: finalDescription,
     openGraph: {
-      title: seo.ogTitle || seo.metaTitle || fallbackTitle,
-      description: seo.ogDescription || seo.metaDescription || fallbackDescription,
-      images: seo.ogImage ? [{ url: seo.ogImage }] : [],
+      title: seo.ogTitle || finalTitle,
+      description: seo.ogDescription || finalDescription,
+      images: finalOgImage ? [{ url: finalOgImage }] : [],
     },
     alternates: {
       canonical: seo.canonicalUrl || undefined,

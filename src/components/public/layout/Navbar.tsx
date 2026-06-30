@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getLocalizedUrl, type Locale } from "@/lib/i18n/config";
 import { Globe, List, X, Anchor, Wrench, ShieldCheck, PaintBrush, MagnifyingGlass, Nut } from "@phosphor-icons/react";
 
 const getIconEl = (slug: string): React.ReactElement => {
@@ -63,10 +64,10 @@ export default function Navbar({ locale, dict, services = [] }: NavbarProps) {
 
   const navLinks = [
     { name: dict.nav.home, href: `/${locale}` },
-    { name: dict.nav.about, href: `/${locale}/about` },
-    { name: dict.nav.services, href: `/${locale}/services` },
-    { name: dict.nav.experience, href: `/${locale}/experience` },
-    { name: dict.nav.news, href: `/${locale}/news` },
+    { name: dict.nav.about, href: getLocalizedUrl('/about', locale as Locale) },
+    { name: dict.nav.services, href: getLocalizedUrl('/services', locale as Locale) },
+    { name: dict.nav.experience, href: getLocalizedUrl('/experience', locale as Locale) },
+    { name: dict.nav.news, href: getLocalizedUrl('/news', locale as Locale) },
   ];
 
   return (
@@ -145,7 +146,7 @@ export default function Navbar({ locale, dict, services = [] }: NavbarProps) {
                           {services.map((service) => (
                             <Link
                               key={service.id}
-                              href={`/${locale}/services/${service.slug}`}
+                              href={getLocalizedUrl(`/services/${service.slug}`, locale as Locale)}
                               className="group/item flex items-center gap-4 rounded-xl p-4 transition-all hover:bg-white/80 hover:shadow-sm"
                             >
                               <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-[#007C91] transition-colors group-hover/item:bg-[#0A2463] group-hover/item:text-white">
@@ -187,7 +188,7 @@ export default function Navbar({ locale, dict, services = [] }: NavbarProps) {
 
             {/* Contact CTA */}
             <Link
-              href={`/${locale}/contact`}
+              href={getLocalizedUrl('/contact', locale as Locale)}
               className="rounded-[4px] bg-[#0A2463] px-5 py-2.5 text-[12px] font-semibold uppercase tracking-wider text-white transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:bg-[#0D2F7A] hover:shadow-[0_10px_22px_rgba(10,36,99,0.18)] active:scale-[0.98]"
             >
               {dict.common.contactUs}
@@ -237,7 +238,7 @@ export default function Navbar({ locale, dict, services = [] }: NavbarProps) {
                     {services.map((service) => (
                       <Link
                         key={service.id}
-                        href={`/${locale}/services/${service.slug}`}
+                        href={getLocalizedUrl(`/services/${service.slug}`, locale as Locale)}
                         onClick={() => setIsOpen(false)}
                         className="text-[14px] text-slate-500 hover:text-[#0A2463]"
                         style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}
@@ -262,7 +263,7 @@ export default function Navbar({ locale, dict, services = [] }: NavbarProps) {
             {locale === "id" ? "Switch to English" : "Ganti ke Indonesia"}
           </Link>
           <Link
-            href={`/${locale}/contact`}
+            href={getLocalizedUrl('/contact', locale as Locale)}
             onClick={() => setIsOpen(false)}
             className="rounded-[4px] bg-[#0A2463] py-3.5 text-center text-[13px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-[#0D2F7A]"
           >

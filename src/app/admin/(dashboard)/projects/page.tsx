@@ -3,6 +3,7 @@ import { deleteProject } from "./actions";
 import ProjectsClient from "./ProjectsClient";
 import { Anchor } from "@phosphor-icons/react/dist/ssr";
 import AdminPageHeader from "@/components/admin/layout/AdminPageHeader";
+import type { Prisma, ContentStatus } from "@prisma/client";
 
 export const metadata = {
   title: "Projects | Admin CMS",
@@ -11,14 +12,39 @@ export const metadata = {
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; search?: string; status?: string }>;
 }) {
-  const { page } = await searchParams;
+  const { page, search, status } = await searchParams;
   const currentPage = Number(page) || 1;
   const pageSize = 10;
 
+  const where: Prisma.ProjectWhereInput = {};
+  
+  if (search) {
+    where.OR = [
+      { clientName: { contains: search } },
+      { vesselType: { contains: search } },
+      { location: { contains: search } },
+      {
+        translations: {
+          some: {
+            OR: [
+              { title: { contains: search } },
+              { slug: { contains: search } },
+            ]
+          }
+        }
+      }
+    ];
+  }
+
+  if (status && status !== "ALL") {
+    where.status = status as ContentStatus;
+  }
+
   const [projects, totalCount] = await Promise.all([
     prisma.project.findMany({
+      where,
       orderBy: { sortOrder: "asc" },
       skip: (currentPage - 1) * pageSize,
       take: pageSize,
@@ -29,7 +55,7 @@ export default async function ProjectsPage({
         },
       },
     }),
-    prisma.project.count(),
+    prisma.project.count({ where }),
   ]);
 
   return (
@@ -45,6 +71,8 @@ export default async function ProjectsPage({
         totalCount={totalCount} 
         currentPage={currentPage}
         pageSize={pageSize}
+        searchQuery={search || ""}
+        statusFilter={status || "ALL"}
         deleteAction={deleteProject}
       />
     </div>

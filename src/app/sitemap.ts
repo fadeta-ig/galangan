@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { getLocalizedUrl, type Locale } from "@/lib/i18n/config";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const locale of locales) {
     for (const page of staticPages) {
       sitemapEntries.push({
-        url: `${baseUrl}/${locale}${page}`,
+        url: `${baseUrl}${page === "" ? `/${locale}` : getLocalizedUrl(page, locale as Locale)}`,
         lastModified: new Date(),
         changeFrequency: "weekly",
         priority: page === "" ? 1 : 0.8,
@@ -32,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   services.forEach((service) => {
     service.translations.forEach((t) => {
       sitemapEntries.push({
-        url: `${baseUrl}/${t.locale}/services/${t.slug}`,
+        url: `${baseUrl}${getLocalizedUrl(`/services/${t.slug}`, t.locale as Locale)}`,
         lastModified: service.updatedAt,
         changeFrequency: "monthly",
         priority: 0.7,
@@ -49,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   projects.forEach((project) => {
     project.translations.forEach((t) => {
       sitemapEntries.push({
-        url: `${baseUrl}/${t.locale}/experience/${t.slug}`,
+        url: `${baseUrl}${getLocalizedUrl(`/experience/${t.slug}`, t.locale as Locale)}`,
         lastModified: project.updatedAt,
         changeFrequency: "monthly",
         priority: 0.7,
@@ -66,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   news.forEach((post) => {
     post.translations.forEach((t) => {
       sitemapEntries.push({
-        url: `${baseUrl}/${t.locale}/news/${t.slug}`,
+        url: `${baseUrl}${getLocalizedUrl(`/news/${t.slug}`, t.locale as Locale)}`,
         lastModified: post.updatedAt,
         changeFrequency: "weekly",
         priority: 0.7,
@@ -83,7 +84,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   pages.forEach((page) => {
     page.translations.forEach((t) => {
       sitemapEntries.push({
-        url: `${baseUrl}/${t.locale}/pages/${t.slug}`,
+        url: `${baseUrl}${getLocalizedUrl(`/pages/${t.slug}`, t.locale as Locale)}`,
         lastModified: page.updatedAt,
         changeFrequency: "monthly",
         priority: 0.5,

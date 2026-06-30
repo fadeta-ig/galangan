@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { SeoMeta } from "@prisma/client";
 import PageForm from "./PageForm";
 import { notFound } from "next/navigation";
 import { FileText } from "@phosphor-icons/react/dist/ssr";
@@ -17,16 +18,21 @@ export default async function EditPageAdminPage({
   const isNew = id === "new";
 
   let page = null;
+  let seoMeta: SeoMeta[] = [];
 
   if (!isNew) {
     page = await prisma.page.findUnique({
       where: { id },
-      include: { translations: true, sections: true },
+      include: { translations: true, sections: { orderBy: { sortOrder: "asc" } } },
     });
 
     if (!page) {
       notFound();
     }
+
+    seoMeta = await prisma.seoMeta.findMany({
+      where: { entityType: "page", entityId: id }
+    });
   }
 
   return (
@@ -37,7 +43,7 @@ export default async function EditPageAdminPage({
         icon={<FileText className="size-5" weight="fill" />}
       />
 
-      <PageForm pageId={id} initialData={page} />
+      <PageForm pageId={id} initialData={page} seoMeta={seoMeta} />
     </div>
   );
 }

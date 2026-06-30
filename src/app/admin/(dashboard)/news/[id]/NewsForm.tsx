@@ -9,6 +9,7 @@ import { FloppyDisk } from "@phosphor-icons/react";
 import LanguageTabs from "@/components/admin/ui/LanguageTabs";
 import RichTextEditor from "@/components/admin/ui/RichTextEditor";
 import ImageUploader from "@/components/admin/ui/ImageUploader";
+import SeoForm from "@/components/admin/ui/SeoForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -183,54 +184,15 @@ export default function NewsForm({
             </TabsContent>
 
             <TabsContent value="seo">
-              <Card>
-                <CardContent className="pt-6">
-                  <LanguageTabs>
-                    {(locale) => {
-                      const isId = locale === "id";
-                      const seo = isId ? seoId : seoEn;
-                      const suffix = isId ? "_id" : "_en";
-
-                      return (
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label>Meta Title</Label>
-                            <Input name={`seoTitle${suffix}`} defaultValue={seo.metaTitle || ""} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Meta Description</Label>
-                            <Textarea name={`seoDesc${suffix}`} defaultValue={seo.metaDescription || ""} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>OG Title</Label>
-                            <Input name={`ogTitle${suffix}`} defaultValue={seo.ogTitle || ""} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>OG Description</Label>
-                            <Textarea name={`ogDesc${suffix}`} defaultValue={seo.ogDescription || ""} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>OG Image</Label>
-                            <input type="hidden" name={`ogImage${suffix}`} value={isId ? ogImageId : ogImageEn} />
-                            {(isId ? ogImageId : ogImageEn) ? (
-                              <div className="relative mb-2 h-32 w-full overflow-hidden rounded-xl border border-border bg-muted">
-                                <Image src={isId ? ogImageId : ogImageEn} alt="OG Image" fill className="object-cover" />
-                                <Button type="button" variant="destructive" size="sm" className="absolute right-2 top-2 h-7 px-2" onClick={() => isId ? setOgImageId("") : setOgImageEn("")}>Remove</Button>
-                              </div>
-                            ) : (
-                              <ImageUploader onUploadSuccess={(media) => isId ? setOgImageId(media.url) : setOgImageEn(media.url)} categoryId="news" />
-                            )}
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Canonical URL</Label>
-                            <Input name={`canonical${suffix}`} defaultValue={seo.canonicalUrl || ""} />
-                          </div>
-                        </div>
-                      );
-                    }}
-                  </LanguageTabs>
-                </CardContent>
-              </Card>
+              <SeoForm 
+                seoId={seoId as any} 
+                seoEn={seoEn as any} 
+                ogImageId={ogImageId} 
+                ogImageEn={ogImageEn} 
+                setOgImageId={setOgImageId} 
+                setOgImageEn={setOgImageEn} 
+                mediaCategoryId="news"
+              />
             </TabsContent>
           </Tabs>
 

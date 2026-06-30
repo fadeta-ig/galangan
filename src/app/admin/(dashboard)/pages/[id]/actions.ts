@@ -55,6 +55,28 @@ export async function savePage(id: string, formData: FormData) {
       return { success: false, message: "Title and slug are required for both languages" };
     }
 
+    const sectionsRaw = getString(formData, "sectionsData");
+    const sections = sectionsRaw ? JSON.parse(sectionsRaw) : [];
+
+    // SEO Data
+    const seoDataId = {
+      metaTitle: getOptionalString(formData, "seoTitle_id"),
+      metaDescription: getOptionalString(formData, "seoDesc_id"),
+      ogTitle: getOptionalString(formData, "ogTitle_id"),
+      ogDescription: getOptionalString(formData, "ogDesc_id"),
+      ogImage: getOptionalString(formData, "ogImage_id"),
+      canonicalUrl: getOptionalString(formData, "canonical_id"),
+    };
+
+    const seoDataEn = {
+      metaTitle: getOptionalString(formData, "seoTitle_en"),
+      metaDescription: getOptionalString(formData, "seoDesc_en"),
+      ogTitle: getOptionalString(formData, "ogTitle_en"),
+      ogDescription: getOptionalString(formData, "ogDesc_en"),
+      ogImage: getOptionalString(formData, "ogImage_en"),
+      canonicalUrl: getOptionalString(formData, "canonical_en"),
+    };
+
     const pageData = {
       heroImage,
       status,
@@ -104,6 +126,57 @@ export async function savePage(id: string, formData: FormData) {
           },
         });
       }
+
+      // Handle Sections
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const incomingSectionIds = sections.map((s: any) => s.id).filter((i: string) => !i.startsWith("new_"));
+      
+      if (!isNew) {
+        await tx.pageSection.deleteMany({
+          where: {
+            pageId: saved.id,
+            id: { notIn: incomingSectionIds }
+          }
+        });
+      }
+
+      for (const sec of sections) {
+        const secData = {
+          sectionType: sec.sectionType,
+          contentId: sec.sectionType === "text" ? sanitizeRichText(sec.contentId) : sec.contentId,
+          contentEn: sec.sectionType === "text" ? sanitizeRichText(sec.contentEn) : sec.contentEn,
+          config: JSON.stringify(sec.config),
+          sortOrder: sec.sortOrder,
+          isActive: sec.isActive,
+        };
+
+        if (sec.id.startsWith("new_")) {
+          await tx.pageSection.create({
+            data: {
+              ...secData,
+              pageId: saved.id,
+            }
+          });
+        } else {
+          await tx.pageSection.update({
+            where: { id: sec.id },
+            data: secData,
+          });
+        }
+      }
+
+      // Handle SEO
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const upsertSeo = async (locale: Locale, data: any) => {
+        await tx.seoMeta.upsert({
+          where: { entityType_entityId_locale: { entityType: "page", entityId: saved.id, locale } },
+          update: data,
+          create: { ...data, entityType: "page", entityId: saved.id, locale },
+        });
+      };
+
+      await upsertSeo(Locale.id, seoDataId);
+      await upsertSeo(Locale.en, seoDataEn);
 
       return saved.id;
     });

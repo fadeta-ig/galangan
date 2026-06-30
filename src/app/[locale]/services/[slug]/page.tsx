@@ -3,6 +3,7 @@ import { getDictionary } from "@/lib/i18n/getDictionary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
+import { getSeoMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, CaretDown, CheckCircle, Question } from "@phosphor-icons/react/dist/ssr";
@@ -23,23 +24,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   if (!service) return {};
 
-  const seoMeta = await prisma.seoMeta.findUnique({
-    where: { entityType_entityId_locale: { entityType: "service", entityId: service.serviceId, locale: locale as Locale } }
-  });
-
   const dict = await getDictionary(locale as Locale);
-  return {
-    title: seoMeta?.metaTitle || `${service.title} | ${dict.services.pageTitle} | ${dict.meta.siteTitle}`,
-    description: seoMeta?.metaDescription || service.shortDescription,
-    openGraph: {
-      title: seoMeta?.ogTitle || service.title,
-      description: seoMeta?.ogDescription || service.shortDescription,
-      images: seoMeta?.ogImage ? [{ url: seoMeta.ogImage }] : undefined,
-    },
-    alternates: {
-      canonical: seoMeta?.canonicalUrl || undefined
-    }
-  };
+  return getSeoMetadata(
+    "service",
+    service.serviceId,
+    locale as Locale,
+    `${service.title} | ${dict.services.pageTitle} | ${dict.meta.siteTitle}`,
+    service.shortDescription,
+    service.service.coverImage
+  );
 }
 
 export default async function ServiceDetailPage({ params }: ServiceDetailPageProps) {

@@ -26,6 +26,32 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      { source: '/id/about', destination: '/id/tentang-kami', permanent: true },
+      { source: '/id/services', destination: '/id/layanan', permanent: true },
+      { source: '/id/services/:slug*', destination: '/id/layanan/:slug*', permanent: true },
+      { source: '/id/experience', destination: '/id/pengalaman', permanent: true },
+      { source: '/id/experience/:slug*', destination: '/id/pengalaman/:slug*', permanent: true },
+      { source: '/id/news', destination: '/id/berita', permanent: true },
+      { source: '/id/news/:slug*', destination: '/id/berita/:slug*', permanent: true },
+      { source: '/id/gallery', destination: '/id/galeri', permanent: true },
+      { source: '/id/contact', destination: '/id/kontak', permanent: true },
+    ];
+  },
+  async rewrites() {
+    return [
+      { source: '/id/tentang-kami', destination: '/id/about' },
+      { source: '/id/layanan', destination: '/id/services' },
+      { source: '/id/layanan/:slug*', destination: '/id/services/:slug*' },
+      { source: '/id/pengalaman', destination: '/id/experience' },
+      { source: '/id/pengalaman/:slug*', destination: '/id/experience/:slug*' },
+      { source: '/id/berita', destination: '/id/news' },
+      { source: '/id/berita/:slug*', destination: '/id/news/:slug*' },
+      { source: '/id/galeri', destination: '/id/gallery' },
+      { source: '/id/kontak', destination: '/id/contact' },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
-  CalendarBlank,
   Database,
-  FunnelSimple,
   MagnifyingGlass,
   PencilSimple,
   Plus,
@@ -13,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -41,6 +41,12 @@ type DataTableProps<T> = {
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
+  
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+  statusFilter?: string;
+  onStatusFilterChange?: (status: string) => void;
+  statusOptions?: { label: string; value: string }[];
 };
 
 export default function DataTable<T extends Record<string, unknown>>({
@@ -56,11 +62,26 @@ export default function DataTable<T extends Record<string, unknown>>({
   currentPage = 1,
   totalPages = 1,
   onPageChange,
+  
+  searchQuery = "",
+  onSearchChange,
+  statusFilter = "ALL",
+  onStatusFilterChange,
+  statusOptions,
 }: DataTableProps<T>) {
+  const [searchValue, setSearchValue] = useState(searchQuery);
+
   const handleDelete = async (id: string) => {
     if (!onDelete) return;
     if (confirm("Are you sure you want to delete this record? This action cannot be undone.")) {
       await onDelete(id);
+    }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSearchChange) {
+      onSearchChange(searchValue);
     }
   };
 
@@ -90,33 +111,42 @@ export default function DataTable<T extends Record<string, unknown>>({
         )}
       </div>
 
-      <div className="border-b border-[#e7eaf0] px-5">
-        <div className="flex h-9 items-end gap-6 text-[11px] font-medium text-[#6b7280]">
-          <span className="border-b-2 border-[#1677ff] pb-2 text-[#1677ff]">
-            All Records <span className="ml-1 text-[#97a0ad]">{data.length}</span>
-          </span>
-          <span className="pb-2">Published</span>
-          <span className="pb-2">Draft</span>
-          <span className="pb-2">Archived</span>
+      {statusOptions && statusOptions.length > 0 && (
+        <div className="border-b border-[#e7eaf0] px-5 flex overflow-x-auto no-scrollbar">
+          <div className="flex h-9 items-end gap-6 text-[11px] font-medium text-[#6b7280]">
+            <button
+              onClick={() => onStatusFilterChange?.("ALL")}
+              className={`pb-2 whitespace-nowrap ${statusFilter === "ALL" || !statusFilter ? "border-b-2 border-[#1677ff] text-[#1677ff]" : "hover:text-foreground"}`}
+            >
+              All Records
+            </button>
+            {statusOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => onStatusFilterChange?.(opt.value)}
+                className={`pb-2 whitespace-nowrap ${statusFilter === opt.value ? "border-b-2 border-[#1677ff] text-[#1677ff]" : "hover:text-foreground"}`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex h-8 w-full max-w-[280px] items-center gap-2 rounded-md border border-[#e2e6ec] bg-white px-3 text-[11px] text-[#9aa3af]">
-          <MagnifyingGlass className="size-4" />
-          <span>Search records</span>
+      {(onSearchChange) && (
+        <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <form onSubmit={handleSearchSubmit} className="relative w-full max-w-[280px]">
+            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
+            <Input 
+              type="text" 
+              placeholder="Search records..." 
+              className="h-8 w-full pl-8 text-[11px] placeholder:text-[#9aa3af] border-[#e2e6ec] focus-visible:ring-1 focus-visible:ring-primary/30"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+          </form>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-8 bg-white text-[11px] text-[#374151]">
-            <CalendarBlank className="size-3.5" />
-            Mar 01, 2024 - Mar 30, 2024
-          </Button>
-          <Button variant="outline" size="sm" className="h-8 bg-white text-[11px] text-[#374151]">
-            <FunnelSimple className="size-3.5" />
-            Filters
-          </Button>
-        </div>
-      </div>
+      )}
 
       <Table>
         <TableHeader>
@@ -197,7 +227,6 @@ export default function DataTable<T extends Record<string, unknown>>({
         </TableBody>
       </Table>
 
-      {/* Pagination */}
       {totalPages > 1 && onPageChange && (
         <div className="flex flex-col gap-2 border-t border-[#e7eaf0] px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">

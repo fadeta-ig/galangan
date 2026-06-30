@@ -1,4 +1,5 @@
 import type { Dictionary } from "@/types/dictionary";
+import { getLocalizedUrl, type Locale } from "@/lib/i18n/config";
 import Link from "next/link";
 import {
   MapPin,
@@ -23,11 +24,11 @@ export default function Footer({ locale, dict, settings }: FooterProps) {
 
   const navLinks = [
     { label: dict.nav?.home ?? "Home", href: `/${locale}` },
-    { label: dict.nav?.about ?? "About", href: `/${locale}/about` },
-    { label: dict.nav?.services ?? "Services", href: `/${locale}/services` },
-    { label: dict.nav?.experience ?? "Experience", href: `/${locale}/experience` },
-    { label: dict.nav?.news ?? "News", href: `/${locale}/news` },
-    { label: dict.nav?.contact ?? "Contact", href: `/${locale}/contact` },
+    { label: dict.nav?.about ?? "About", href: getLocalizedUrl('/about', locale as Locale) },
+    { label: dict.nav?.services ?? "Services", href: getLocalizedUrl('/services', locale as Locale) },
+    { label: dict.nav?.experience ?? "Experience", href: getLocalizedUrl('/experience', locale as Locale) },
+    { label: dict.nav?.news ?? "News", href: getLocalizedUrl('/news', locale as Locale) },
+    { label: dict.nav?.contact ?? "Contact", href: getLocalizedUrl('/contact', locale as Locale) },
   ];
 
   const socials = [

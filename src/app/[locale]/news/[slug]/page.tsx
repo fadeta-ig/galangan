@@ -3,6 +3,7 @@ import { getDictionary } from "@/lib/i18n/getDictionary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
+import { getSeoMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { ArrowRight, CalendarBlank, UserCircle, Tag } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
@@ -23,23 +24,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   if (!post) return {};
 
-  const seoMeta = await prisma.seoMeta.findUnique({
-    where: { entityType_entityId_locale: { entityType: "news", entityId: post.postId, locale: locale as Locale } }
-  });
-
   const dict = await getDictionary(locale as Locale);
-  return {
-    title: seoMeta?.metaTitle || `${post.title} | ${dict.news.pageTitle} | ${dict.meta.siteTitle}`,
-    description: seoMeta?.metaDescription || post.excerpt,
-    openGraph: {
-      title: seoMeta?.ogTitle || post.title,
-      description: seoMeta?.ogDescription || post.excerpt,
-      images: seoMeta?.ogImage ? [{ url: seoMeta.ogImage }] : undefined,
-    },
-    alternates: {
-      canonical: seoMeta?.canonicalUrl || undefined
-    }
-  };
+  return getSeoMetadata(
+    "news",
+    post.postId,
+    locale as Locale,
+    `${post.title} | ${dict.news.pageTitle} | ${dict.meta.siteTitle}`,
+    post.excerpt,
+    post.post.featuredImage
+  );
 }
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
@@ -82,8 +75,25 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
     year: "numeric"
   });
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": trans.title,
+    "image": post.featuredImage ? [post.featuredImage] : undefined,
+    "datePublished": new Date(post.publishDate).toISOString(),
+    "dateModified": new Date(post.updatedAt).toISOString(),
+    "author": [{
+      "@type": "Person",
+      "name": post.author?.name || dict.meta.siteTitle
+    }]
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white pb-0">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       <PageHero
         backHref={`/${locale}/news`}
         backLabel={dict.news.pageTitle}

@@ -74,8 +74,25 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     };
   });
 
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": dict.meta.siteTitle,
+    "url": process.env.NEXT_PUBLIC_SITE_URL || "https://galangan.com",
+    "logo": settings['company_logo'] || "",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": settings['contact_phone'] || "",
+      "contactType": "customer service"
+    }
+  };
+
   return (
     <div data-locale={locale} className="min-h-screen flex flex-col bg-gray-50 text-navy">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+      />
       <Navbar locale={locale} dict={dict} services={navbarServices} />
       
       <main className="flex-grow">

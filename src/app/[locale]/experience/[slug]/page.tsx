@@ -3,6 +3,7 @@ import { getDictionary } from "@/lib/i18n/getDictionary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
+import { getSeoMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, MapPin, CalendarBlank, Tag, Buildings, Anchor } from "@phosphor-icons/react/dist/ssr";
@@ -23,23 +24,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   if (!project) return {};
 
-  const seoMeta = await prisma.seoMeta.findUnique({
-    where: { entityType_entityId_locale: { entityType: "project", entityId: project.projectId, locale: locale as Locale } }
-  });
-
   const dict = await getDictionary(locale as Locale);
-  return {
-    title: seoMeta?.metaTitle || `${project.title} | ${dict.experience.pageTitle} | ${dict.meta.siteTitle}`,
-    description: seoMeta?.metaDescription || project.shortDescription,
-    openGraph: {
-      title: seoMeta?.ogTitle || project.title,
-      description: seoMeta?.ogDescription || project.shortDescription,
-      images: seoMeta?.ogImage ? [{ url: seoMeta.ogImage }] : undefined,
-    },
-    alternates: {
-      canonical: seoMeta?.canonicalUrl || undefined
-    }
-  };
+  return getSeoMetadata(
+    "project",
+    project.projectId,
+    locale as Locale,
+    `${project.title} | ${dict.experience.pageTitle} | ${dict.meta.siteTitle}`,
+    project.shortDescription,
+    project.project.coverImage
+  );
 }
 
 export default async function ExperienceDetailPage({ params }: ExperienceDetailPageProps) {
