@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { sanitizeRichText } from "@/lib/sanitizeHtml";
 import { getSeoMetadata } from "@/lib/seo";
+import DOMPurify from "isomorphic-dompurify";
 import CTASection from "@/components/public/sections/CTASection";
 import PageHero from "@/components/public/sections/PageHero";
 import Image from "next/image";
@@ -124,7 +125,7 @@ export default async function DynamicPage({ params }: DynamicPageProps) {
                   );
                 case "custom":
                   return (
-                    <div key={section.id} className="w-full animate-reveal" dangerouslySetInnerHTML={{ __html: content }} />
+                    <div key={section.id} className="w-full animate-reveal" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />
                   );
                 default:
                   return null;

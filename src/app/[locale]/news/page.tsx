@@ -2,6 +2,7 @@ import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getSeoMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, CalendarBlank } from "@phosphor-icons/react/dist/ssr";
@@ -18,10 +19,14 @@ type NewsPageProps = {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const dict = await getDictionary(locale as Locale);
-  return {
-    title: `${dict.news.pageTitle} | ${dict.meta.siteTitle}`,
-    description: dict.news.pageSubtitle,
-  };
+  return getSeoMetadata(
+    "page",
+    "news",
+    locale as Locale,
+    `${dict.news.pageTitle} | ${dict.meta.siteTitle}`,
+    dict.news.pageSubtitle,
+    "/images/hero_news.png"
+  );
 }
 
 export default async function NewsPage({ params, searchParams }: NewsPageProps) {

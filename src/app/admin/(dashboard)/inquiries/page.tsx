@@ -30,7 +30,10 @@ export default async function InquiriesPage({
   }
 
   if (status && status !== "ALL") {
-    where.status = status as InquiryStatus;
+    const validStatuses: InquiryStatus[] = ["NEW", "READ", "REPLIED", "ARCHIVED"];
+    if (validStatuses.includes(status as InquiryStatus)) {
+      where.status = status as InquiryStatus;
+    }
   }
 
   const [inquiries, totalCount] = await Promise.all([

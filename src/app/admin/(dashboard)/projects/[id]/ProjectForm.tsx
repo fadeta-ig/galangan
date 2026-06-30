@@ -191,8 +191,8 @@ export default function ProjectForm({
 
             <TabsContent value="seo">
               <SeoForm 
-                seoId={seoId as any} 
-                seoEn={seoEn as any} 
+                seoId={seoId} 
+                seoEn={seoEn} 
                 ogImageId={ogImageId} 
                 ogImageEn={ogImageEn} 
                 setOgImageId={setOgImageId} 

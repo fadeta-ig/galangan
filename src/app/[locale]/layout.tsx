@@ -79,10 +79,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     "@type": "Organization",
     "name": dict.meta.siteTitle,
     "url": process.env.NEXT_PUBLIC_SITE_URL || "https://galangan.com",
-    "logo": settings['company_logo'] || "",
+    "logo": settings['site_logo'] || "",
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": settings['contact_phone'] || "",
+      "telephone": settings['company_phone'] || "",
       "contactType": "customer service"
     }
   };

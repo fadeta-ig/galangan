@@ -2,6 +2,7 @@ import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getSeoMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Anchor, ShieldCheck, Wrench, PaintBrush, MagnifyingGlass, Nut } from "@phosphor-icons/react/dist/ssr";
@@ -18,10 +19,14 @@ type ServicesPageProps = {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const dict = await getDictionary(locale as Locale);
-  return {
-    title: `${dict.services.pageTitle} | ${dict.meta.siteTitle}`,
-    description: dict.services.pageSubtitle,
-  };
+  return getSeoMetadata(
+    "page",
+    "services",
+    locale as Locale,
+    `${dict.services.pageTitle} | ${dict.meta.siteTitle}`,
+    dict.services.pageSubtitle,
+    "/images/hero_services.png"
+  );
 }
 
 const getIcon = (slug: string) => {

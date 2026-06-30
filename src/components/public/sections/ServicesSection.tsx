@@ -4,6 +4,7 @@ import type { Dictionary } from "@/types/dictionary";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Anchor, ShieldCheck, Wrench, PaintBrush, MagnifyingGlass, Nut } from "@phosphor-icons/react";
+import { getLocalizedUrl, type Locale } from "@/lib/i18n/config";
 
 type ServicesSectionProps = {
   locale: string;
@@ -60,7 +61,7 @@ export default function ServicesSection({
   const ctaPrimaryLabel = locale === "id" 
     ? (config.ctaPrimaryLabelId || "Lihat Semua") 
     : (config.ctaPrimaryLabelEn || "View All");
-  const ctaPrimaryUrl = config.ctaPrimaryUrl || `/${locale}/services`;
+  const ctaPrimaryUrl = config.ctaPrimaryUrl || getLocalizedUrl('/services', locale as Locale);
 
   return (
     <section className="bg-slate-50 py-24 border-y border-slate-200">
@@ -153,7 +154,7 @@ export default function ServicesSection({
 
                   {/* CTA */}
                   <Link
-                    href={`/${locale}/services/${slug}`}
+                    href={getLocalizedUrl(`/services/${slug}`, locale as Locale)}
                     className="group/btn mt-auto inline-flex items-center gap-3 self-start text-[11px] font-bold uppercase tracking-[0.15em] text-[#0A2463] transition-colors duration-300 group-hover:!text-[#9EEFFC]"
                   >
                     {dict.common?.readMore || "Discover"}

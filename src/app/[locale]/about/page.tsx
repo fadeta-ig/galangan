@@ -29,7 +29,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
   // Try to fetch custom page data if exists
   const pageData = await prisma.page.findFirst({
     where: {
-      translations: { some: { slug: "about" } },
+      translations: { some: { slug: { in: ["about", "tentang-kami"] } } },
       status: "PUBLISHED"
     },
     include: {

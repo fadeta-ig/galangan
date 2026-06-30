@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import DataTable, { type Column } from "@/components/admin/ui/DataTable";
 import { useRouter } from "next/navigation";
-import { Eye, FloppyDisk, MagnifyingGlass } from "@phosphor-icons/react";
+import { Eye, FloppyDisk } from "@phosphor-icons/react";
 import type { InquiryStatus, Inquiry } from "@prisma/client";
 
 type InquiryItem = Omit<Inquiry, "createdAt" | "updatedAt"> & {
@@ -19,8 +19,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function InquiriesClient({
@@ -48,7 +46,7 @@ export default function InquiriesClient({
   const [isPending, startTransition] = useTransition();
   const [selectedInquiry, setSelectedInquiry] = useState<InquiryItem | null>(null);
   
-  const [search, setSearch] = useState(searchQuery);
+
   const [internalNote, setInternalNote] = useState("");
 
   const applyFilters = (newSearch: string, newStatus: string) => {
@@ -58,14 +56,7 @@ export default function InquiriesClient({
     router.push(`/admin/inquiries?${params.toString()}`);
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    applyFilters(search, statusFilter);
-  };
 
-  const handleStatusFilterChange = (val: string) => {
-    applyFilters(search, val);
-  };
 
   const handleView = async (row: InquiryItem) => {
     setSelectedInquiry(row);

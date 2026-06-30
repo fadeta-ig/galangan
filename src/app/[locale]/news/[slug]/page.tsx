@@ -1,4 +1,4 @@
-import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { isValidLocale, type Locale, getLocalizedUrl } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -95,7 +95,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
       <PageHero
-        backHref={`/${locale}/news`}
+        backHref={getLocalizedUrl('/news', locale as Locale)}
         backLabel={dict.news.pageTitle}
         title={trans.title}
         imageSrc={post.featuredImage}

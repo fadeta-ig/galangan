@@ -1,4 +1,4 @@
-import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { isValidLocale, type Locale, getLocalizedUrl } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -78,7 +78,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
   return (
     <div className="flex flex-col min-h-screen bg-white pb-0">
       <PageHero
-        backHref={`/${locale}/services`}
+        backHref={getLocalizedUrl('/services', locale as Locale)}
         backLabel={dict.services.pageTitle}
         title={trans.title}
         subtitle={trans.shortDescription}

@@ -117,7 +117,7 @@ export default function Navbar({ locale, dict, services = [] }: NavbarProps) {
                 pathname === link.href ||
                 (link.href !== `/${locale}` && pathname.startsWith(link.href + "/"));
               
-              const isServices = link.href === `/${locale}/services`;
+              const isServices = link.href === getLocalizedUrl('/services', locale as Locale);
 
               return (
                 <div key={link.href} className="group relative py-6">
@@ -220,7 +220,7 @@ export default function Navbar({ locale, dict, services = [] }: NavbarProps) {
       >
         <nav className="flex flex-col divide-y divide-slate-100 px-6 overflow-y-auto">
           {navLinks.map((link) => {
-            const isServices = link.href === `/${locale}/services`;
+            const isServices = link.href === getLocalizedUrl('/services', locale as Locale);
             
             return (
               <div key={link.href} className="flex flex-col">

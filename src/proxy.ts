@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { locales, defaultLocale } from "@/lib/i18n/config";
+import { locales, defaultLocale, routeAliases, type Locale } from "@/lib/i18n/config";
 import { getToken } from "next-auth/jwt";
 
 function getLocaleFromPath(pathname: string): string | null {
@@ -51,6 +51,22 @@ export async function proxy(request: NextRequest) {
   // Check if pathname already has a locale
   const pathnameLocale = getLocaleFromPath(pathname);
   if (pathnameLocale) {
+    // Reverse lookup for route aliases
+    const pathWithoutLocale = pathname.replace(`/${pathnameLocale}`, "");
+    let physicalPath = pathWithoutLocale;
+    
+    for (const [base, aliases] of Object.entries(routeAliases)) {
+      const alias = aliases[pathnameLocale as Locale];
+      if (alias && (pathWithoutLocale === alias || pathWithoutLocale.startsWith(`${alias}/`))) {
+        physicalPath = pathWithoutLocale.replace(alias, base);
+        break;
+      }
+    }
+    
+    if (physicalPath !== pathWithoutLocale) {
+      return NextResponse.rewrite(new URL(`/${pathnameLocale}${physicalPath}`, request.url));
+    }
+
     return NextResponse.next();
   }
 
