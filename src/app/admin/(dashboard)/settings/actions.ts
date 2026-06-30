@@ -20,9 +20,10 @@ export async function updateSiteSettings(formData: FormData) {
       .filter((key) => !key.startsWith("$ACTION_ID_")) // Filter out internal Next.js action IDs
       .map((key) => {
         const value = formData.get(key) as string;
-        return prisma.siteSetting.update({
+        return prisma.siteSetting.upsert({
           where: { key },
-          data: { value },
+          update: { value },
+          create: { key, value },
         });
       });
 

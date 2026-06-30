@@ -93,7 +93,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
       />
-      <Navbar locale={locale} dict={dict} services={navbarServices} />
+      <Navbar locale={locale} dict={dict} services={navbarServices} settings={settings} />
       
       <main className="flex-grow">
         {children}

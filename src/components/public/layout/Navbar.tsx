@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getLocalizedUrl, getOppositeLocaleUrl, type Locale } from "@/lib/i18n/config";
+import Image from "next/image";
 import { Globe, List, X, Anchor, Wrench, ShieldCheck, PaintBrush, MagnifyingGlass, Nut } from "@phosphor-icons/react";
 
 const getIconEl = (slug: string): React.ReactElement => {
@@ -44,12 +45,15 @@ type NavbarProps = {
     title: string;
     slug: string;
   }[];
+  settings?: Record<string, string>;
 };
 
-export default function Navbar({ locale, dict, services = [] }: NavbarProps) {
+export default function Navbar({ locale, dict, services = [], settings = {} }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  
+  const siteLogo = settings.site_logo;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -97,16 +101,25 @@ export default function Navbar({ locale, dict, services = [] }: NavbarProps) {
             className="flex items-center gap-1.5 shrink-0"
             style={{ fontFamily: "'Outfit', system-ui, sans-serif" }}
           >
-            <span
-              className="text-[18px] font-semibold tracking-tight text-[#0A2463]"
-            >
-              GALANGAN
-            </span>
-            <span
-              className="text-[18px] font-semibold tracking-tight text-[#B42318]"
-            >
-              KAPAL
-            </span>
+            {siteLogo ? (
+              <Image
+                src={siteLogo}
+                alt={dict.meta?.siteTitle || "Logo"}
+                width={160}
+                height={40}
+                style={{ maxHeight: "40px", width: "auto", objectFit: "contain" }}
+                priority
+              />
+            ) : (
+              <>
+                <span className="text-[18px] font-semibold tracking-tight text-[#0A2463]">
+                  GALANGAN
+                </span>
+                <span className="text-[18px] font-semibold tracking-tight text-[#B42318]">
+                  KAPAL
+                </span>
+              </>
+            )}
           </Link>
 
           {/* ── Desktop Nav ── */}
