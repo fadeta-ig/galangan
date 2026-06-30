@@ -16,8 +16,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 type Trans = {
   locale: string;
@@ -56,7 +56,6 @@ export default function ProjectForm({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
 
   const [coverImage, setCoverImage] = useState(initialData?.coverImage || "");
   const [status, setStatus] = useState(initialData?.status || "DRAFT");
@@ -95,7 +94,6 @@ export default function ProjectForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
     const formData = new FormData(e.currentTarget);
     
     formData.set("coverImage", coverImage);
@@ -122,22 +120,17 @@ export default function ProjectForm({
     startTransition(async () => {
       const res = await saveProject(projectId, formData);
       if (res.success) {
+        toast.success("Project saved successfully!");
         router.push("/admin/projects");
         router.refresh();
       } else {
-        setError(res.message);
+        toast.error(res.message);
       }
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           

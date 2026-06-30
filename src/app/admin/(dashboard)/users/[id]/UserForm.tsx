@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 import ImageUploader from "@/components/admin/ui/ImageUploader";
 import Image from "next/image";
 
@@ -29,7 +29,6 @@ export default function UserForm({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
   const isNew = userId === "new";
   
   const [isActive, setIsActive] = useState(initialData ? (initialData.isActive ?? true) : true);
@@ -38,7 +37,6 @@ export default function UserForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
     const formData = new FormData(e.currentTarget);
     formData.set("isActive", isActive.toString());
     formData.set("role", role);
@@ -47,22 +45,17 @@ export default function UserForm({
     startTransition(async () => {
       const res = await saveUser(userId, formData);
       if (res.success) {
+        toast.success("User saved successfully!");
         router.push("/admin/users");
         router.refresh();
       } else {
-        setError(res.message);
+        toast.error(res.message);
       }
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
       <Card>
         <CardHeader className="pb-4 border-b border-border">
           <CardTitle className="text-base font-medium">User Details</CardTitle>

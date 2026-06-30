@@ -21,6 +21,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export type Column<T> = {
   header: string;
@@ -70,11 +72,25 @@ export default function DataTable<T extends Record<string, unknown>>({
   statusOptions,
 }: DataTableProps<T>) {
   const [searchValue, setSearchValue] = useState(searchQuery);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState<string | null>(null);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!onDelete) return;
-    if (confirm("Are you sure you want to delete this record? This action cannot be undone.")) {
-      await onDelete(id);
+    setRecordToDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!onDelete || !recordToDelete) return;
+    setIsDeleting(true);
+    try {
+      await onDelete(recordToDelete);
+      toast.success("Record deleted successfully.");
+    } catch {
+      toast.error("Failed to delete record.");
+    } finally {
+      setIsDeleting(false);
+      setRecordToDelete(null);
     }
   };
 
@@ -266,6 +282,25 @@ export default function DataTable<T extends Record<string, unknown>>({
           </div>
         </div>
       )}
+
+      <Dialog open={recordToDelete !== null} onOpenChange={(open) => !open && setRecordToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete this record from the system.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRecordToDelete(null)} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={isDeleting}>
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

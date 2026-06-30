@@ -3,7 +3,7 @@
 import { type NewsletterSubscriber } from "@prisma/client";
 import { Trash, CheckCircle, XCircle, Database } from "@phosphor-icons/react";
 import { toggleSubscriberStatus, deleteSubscriber } from "./actions";
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -14,9 +14,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export default function NewsletterClient({ subscribers }: { subscribers: NewsletterSubscriber[] }) {
   const [isPending, startTransition] = useTransition();
+  const [subscriberToDelete, setSubscriberToDelete] = useState<string | null>(null);
 
   const handleToggle = (id: string, isActive: boolean) => {
     startTransition(async () => {
@@ -25,9 +28,15 @@ export default function NewsletterClient({ subscribers }: { subscribers: Newslet
   };
 
   const handleDelete = (id: string) => {
-    if (!confirm("Are you sure you want to permanently delete this subscriber?")) return;
+    setSubscriberToDelete(id);
+  };
+
+  const confirmDelete = () => {
+    if (!subscriberToDelete) return;
     startTransition(async () => {
-      await deleteSubscriber(id);
+      await deleteSubscriber(subscriberToDelete);
+      toast.success("Subscriber deleted successfully.");
+      setSubscriberToDelete(null);
     });
   };
 
@@ -107,6 +116,25 @@ export default function NewsletterClient({ subscribers }: { subscribers: Newslet
           )}
         </TableBody>
       </Table>
+
+      <Dialog open={subscriberToDelete !== null} onOpenChange={(open) => !open && setSubscriberToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete this subscriber from our database.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSubscriberToDelete(null)} disabled={isPending}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={isPending}>
+              {isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

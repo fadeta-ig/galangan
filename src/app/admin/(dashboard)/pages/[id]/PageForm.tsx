@@ -15,8 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -46,7 +46,6 @@ export default function PageForm({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
 
   const [heroImage, setHeroImage] = useState(initialData?.heroImage ?? "");
   const [status, setStatus] = useState<string>(initialData?.status ?? "DRAFT");
@@ -100,7 +99,6 @@ export default function PageForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
     const formData = new FormData(e.currentTarget);
 
     formData.set("heroImage", heroImage);
@@ -115,22 +113,17 @@ export default function PageForm({
     startTransition(async () => {
       const res = await savePage(pageId, formData);
       if (res.success) {
+        toast.success("Page saved successfully!");
         router.push("/admin/pages");
         router.refresh();
       } else {
-        setError(res.message);
+        toast.error(res.message);
       }
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Tabs defaultValue="sections">

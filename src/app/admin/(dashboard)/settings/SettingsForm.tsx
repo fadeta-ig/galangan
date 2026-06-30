@@ -12,10 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ImageUploader from "@/components/admin/ui/ImageUploader";
 import Image from "next/image";
+import { toast } from "sonner";
 
 export default function SettingsForm({ settings }: { settings: SiteSetting[] }) {
   const [isPending, startTransition] = useTransition();
-  const [message, setMessage] = useState<{ success: boolean; message: string } | null>(null);
 
   const getVal = (key: string) => settings.find((s) => s.key === key)?.value || "";
   
@@ -30,18 +30,16 @@ export default function SettingsForm({ settings }: { settings: SiteSetting[] }) 
     
     startTransition(async () => {
       const res = await updateSiteSettings(formData);
-      setMessage(res);
-      setTimeout(() => setMessage(null), 3000);
+      if (res.success) {
+        toast.success(res.message);
+      } else {
+        toast.error(res.message);
+      }
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {message?.message && (
-        <Alert variant={message.success ? "default" : "destructive"} className={message.success ? "bg-emerald-50 text-emerald-800 border-emerald-200" : ""}>
-          <AlertDescription>{message.message}</AlertDescription>
-        </Alert>
-      )}
 
       <Card>
         <CardHeader className="pb-4 border-b border-border">

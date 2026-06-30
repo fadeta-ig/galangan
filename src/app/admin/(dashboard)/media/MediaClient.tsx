@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 type MediaWithCategory = Media & { category: MediaCategory | null };
 
@@ -30,6 +32,7 @@ export default function MediaClient({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [mediaToDelete, setMediaToDelete] = useState<string | null>(null);
 
   const handleUploadSuccess = () => {
     router.refresh();
@@ -38,24 +41,30 @@ export default function MediaClient({
   const copyToClipboard = (url: string, id: string) => {
     navigator.clipboard.writeText(url);
     setCopiedId(id);
+    toast.success("URL copied to clipboard");
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const deleteMedia = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this media?")) return;
-    
-    setIsDeleting(id);
+  const deleteMedia = (id: string) => {
+    setMediaToDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!mediaToDelete) return;
+    setIsDeleting(mediaToDelete);
     try {
-      const res = await fetch(`/api/media/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/media/${mediaToDelete}`, { method: "DELETE" });
       if (res.ok) {
+        toast.success("Media deleted successfully.");
         router.refresh();
       } else {
-        alert("Failed to delete media.");
+        toast.error("Failed to delete media.");
       }
     } catch {
-      alert("Error deleting media.");
+      toast.error("Error deleting media.");
     } finally {
       setIsDeleting(null);
+      setMediaToDelete(null);
     }
   };
 
@@ -194,6 +203,25 @@ export default function MediaClient({
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={mediaToDelete !== null} onOpenChange={(open) => !open && setMediaToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete this media file from our servers.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMediaToDelete(null)} disabled={!!isDeleting}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={!!isDeleting}>
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

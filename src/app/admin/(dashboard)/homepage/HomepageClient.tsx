@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ImageUploader from "@/components/admin/ui/ImageUploader";
 
@@ -45,7 +45,6 @@ type HomepageClientProps = {
 function SectionEditor({ section, options }: { section: HomepageSection; options: HomepageClientProps["options"] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const [titleId, setTitleId] = useState(section.titleId || "");
   const [titleEn, setTitleEn] = useState(section.titleEn || "");
@@ -79,7 +78,6 @@ function SectionEditor({ section, options }: { section: HomepageSection; options
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setMessage(null);
     const formData = new FormData(e.currentTarget);
     
     formData.set("titleId", titleId);
@@ -106,9 +104,10 @@ function SectionEditor({ section, options }: { section: HomepageSection; options
 
     startTransition(async () => {
       const res = await updateHomepageSection(section.id as string, formData);
-      setMessage({ type: res.success ? "success" : "error", text: res.message });
       if (res.success) {
-        setTimeout(() => setMessage(null), 3000);
+        toast.success(res.message);
+      } else {
+        toast.error(res.message);
       }
     });
   };
@@ -135,11 +134,6 @@ function SectionEditor({ section, options }: { section: HomepageSection; options
       {isOpen && (
         <div className="border-t border-border bg-card p-4">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {message && (
-              <Alert variant={message.type === "success" ? "default" : "destructive"} className={message.type === "success" ? "bg-emerald-50 text-emerald-800 border-emerald-200" : ""}>
-                <AlertDescription>{message.text}</AlertDescription>
-              </Alert>
-            )}
 
             <LanguageTabs>
               {(locale) => {

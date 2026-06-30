@@ -3,6 +3,7 @@
 import DataTable, { type Column } from "@/components/admin/ui/DataTable";
 import { CheckCircle, XCircle } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 type AdminUser = {
   id: string;
@@ -74,7 +75,7 @@ export default function UsersClient({
       editUrlBase="/admin/users"
       onDelete={(id) => {
         if (id === currentUserId) {
-          alert("You cannot delete yourself.");
+          toast.error("You cannot delete yourself.");
           return Promise.resolve();
         }
         return deleteAction(id);
