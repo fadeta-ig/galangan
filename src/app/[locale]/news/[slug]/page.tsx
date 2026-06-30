@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (!post) return {};
 
   const dict = await getDictionary(locale as Locale);
-  return getSeoMetadata(
+  const baseSeo = await getSeoMetadata(
     "news",
     post.postId,
     locale as Locale,
@@ -33,6 +33,23 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     post.excerpt,
     post.post.featuredImage
   );
+
+  const oppLocale = locale === "id" ? "en" : "id";
+  const oppTrans = await prisma.newsPostTranslation.findFirst({
+    where: { postId: post.postId, locale: oppLocale }
+  });
+
+  if (oppTrans) {
+    baseSeo.alternates = {
+      ...baseSeo.alternates,
+      languages: {
+        [locale]: getLocalizedUrl(`/news/${post.slug}`, locale as Locale),
+        [oppLocale]: getLocalizedUrl(`/news/${oppTrans.slug}`, oppLocale as Locale),
+      }
+    };
+  }
+
+  return baseSeo;
 }
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {

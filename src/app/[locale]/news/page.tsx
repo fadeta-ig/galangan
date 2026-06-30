@@ -1,4 +1,4 @@
-import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { isValidLocale, type Locale, getLocalizedUrl } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -21,7 +21,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const dict = await getDictionary(locale as Locale);
 
   const page = await prisma.page.findFirst({
-    where: { translations: { some: { slug: { in: ["news", "berita"] } } } }
+    where: {
+      status: "PUBLISHED",
+      translations: { some: { slug: locale === "id" ? "berita" : "news", locale: locale as Locale } }
+    }
   });
 
   return getSeoMetadata(
@@ -178,7 +181,7 @@ export default async function NewsPage({ params, searchParams }: NewsPageProps) 
             })}
           </div>
           <div className="mt-12">
-            <Pagination currentPage={page} totalPages={totalPages} baseUrl={`/${locale}/news`} />
+            <Pagination currentPage={page} totalPages={totalPages} baseUrl={getLocalizedUrl('/news', locale as Locale)} />
           </div>
         </div>
       </section>

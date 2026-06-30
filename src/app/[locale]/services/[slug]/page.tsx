@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (!service) return {};
 
   const dict = await getDictionary(locale as Locale);
-  return getSeoMetadata(
+  const baseSeo = await getSeoMetadata(
     "service",
     service.serviceId,
     locale as Locale,
@@ -33,6 +33,23 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     service.shortDescription,
     service.service.coverImage
   );
+
+  const oppLocale = locale === "id" ? "en" : "id";
+  const oppTrans = await prisma.serviceTranslation.findFirst({
+    where: { serviceId: service.serviceId, locale: oppLocale }
+  });
+
+  if (oppTrans) {
+    baseSeo.alternates = {
+      ...baseSeo.alternates,
+      languages: {
+        [locale]: getLocalizedUrl(`/services/${service.slug}`, locale as Locale),
+        [oppLocale]: getLocalizedUrl(`/services/${oppTrans.slug}`, oppLocale as Locale),
+      }
+    };
+  }
+
+  return baseSeo;
 }
 
 export default async function ServiceDetailPage({ params }: ServiceDetailPageProps) {

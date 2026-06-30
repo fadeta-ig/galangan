@@ -4,6 +4,7 @@ import type { Dictionary } from "@/types/dictionary";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "@phosphor-icons/react";
+import { getLocalizedUrl, type Locale } from "@/lib/i18n/config";
 
 type HeroSectionProps = {
   locale: string;
@@ -28,10 +29,10 @@ export default function HeroSection({ locale, dict, data }: HeroSectionProps) {
   const bgImage = config.bgImage || "/images/hero_shipyard.png";
   
   const ctaPrimaryLabel = locale === "id" ? (config.ctaPrimaryLabelId || dict.common?.contactUs || "Hubungi Kami") : (config.ctaPrimaryLabelEn || dict.common?.contactUs || "Contact Us");
-  const ctaPrimaryUrl = config.ctaPrimaryUrl || `/${locale}/contact`;
+  const ctaPrimaryUrl = config.ctaPrimaryUrl || getLocalizedUrl('/contact', locale as Locale);
   
   const ctaSecondaryLabel = locale === "id" ? (config.ctaSecondaryLabelId || "Layanan Kami") : (config.ctaSecondaryLabelEn || "Our Services");
-  const ctaSecondaryUrl = config.ctaSecondaryUrl || `/${locale}/services`;
+  const ctaSecondaryUrl = config.ctaSecondaryUrl || getLocalizedUrl('/services', locale as Locale);
 
   return (
     <section

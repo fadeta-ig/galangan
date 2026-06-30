@@ -34,6 +34,10 @@ type Dictionary = {
   common: {
     contactUs: string;
   };
+  meta?: {
+    siteTitle?: string;
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 };
 
@@ -61,8 +65,25 @@ export default function Navbar({ locale, dict, services = [], settings = {} }: N
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const switchLocale = () => {
+  const getFallbackLocaleUrl = () => {
     return getOppositeLocaleUrl(pathname, locale as Locale);
+  };
+
+  const handleSwitchLocale = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const oppositeLocale = locale === "id" ? "en" : "id";
+    let targetUrl = getFallbackLocaleUrl();
+    
+    // Look for alternate language meta tag injected by the page
+    if (typeof document !== "undefined") {
+      const alternateLink = document.querySelector(`link[rel="alternate"][hreflang="${oppositeLocale}"]`);
+      if (alternateLink) {
+        const href = alternateLink.getAttribute("href");
+        if (href) targetUrl = href;
+      }
+    }
+    
+    window.location.href = targetUrl;
   };
 
   const navLinks = [
@@ -188,15 +209,15 @@ export default function Navbar({ locale, dict, services = [], settings = {} }: N
 
           {/* ── Actions ── */}
           <div className="hidden items-center gap-5 md:flex">
-            {/* Locale switcher */}
-            <Link
-              href={switchLocale()}
+            <a
+              href={getFallbackLocaleUrl()}
+              onClick={handleSwitchLocale}
               className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-slate-500 transition-colors hover:text-[#0A2463]"
               title={`Switch to ${locale === "id" ? "English" : "Bahasa Indonesia"}`}
             >
               <Globe className="size-4" />
               {locale === "id" ? "EN" : "ID"}
-            </Link>
+            </a>
 
             {/* Contact CTA */}
             <Link
@@ -266,14 +287,14 @@ export default function Navbar({ locale, dict, services = [], settings = {} }: N
         </nav>
 
         <div className="mt-auto flex flex-col gap-3 px-6 pb-10 pt-8">
-          <Link
-            href={switchLocale()}
-            onClick={() => setIsOpen(false)}
+          <a
+            href={getFallbackLocaleUrl()}
+            onClick={handleSwitchLocale}
             className="flex items-center justify-center gap-2 rounded-[4px] border border-slate-200 py-3 text-[13px] font-semibold uppercase tracking-wider text-slate-700 transition-colors hover:border-[#0A2463] hover:text-[#0A2463]"
           >
             <Globe className="size-4" />
             {locale === "id" ? "Switch to English" : "Ganti ke Indonesia"}
-          </Link>
+          </a>
           <Link
             href={getLocalizedUrl('/contact', locale as Locale)}
             onClick={() => setIsOpen(false)}

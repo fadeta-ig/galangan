@@ -21,7 +21,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const dict = await getDictionary(locale as Locale);
   
   const page = await prisma.page.findFirst({
-    where: { translations: { some: { slug: { in: ["services", "layanan"] } } } }
+    where: {
+      status: "PUBLISHED",
+      translations: { some: { slug: locale === "id" ? "layanan" : "services", locale: locale as Locale } }
+    }
   });
 
   return getSeoMetadata(
@@ -167,7 +170,7 @@ export default async function ServicesPage({ params, searchParams }: ServicesPag
           </div>
           
           <div className="mt-12">
-            <Pagination currentPage={page} totalPages={totalPages} baseUrl={`/${locale}/services`} />
+            <Pagination currentPage={page} totalPages={totalPages} baseUrl={getLocalizedUrl('/services', locale as Locale)} />
           </div>
         </div>
       </section>

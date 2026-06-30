@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (!project) return {};
 
   const dict = await getDictionary(locale as Locale);
-  return getSeoMetadata(
+  const baseSeo = await getSeoMetadata(
     "project",
     project.projectId,
     locale as Locale,
@@ -33,6 +33,23 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     project.shortDescription,
     project.project.coverImage
   );
+
+  const oppLocale = locale === "id" ? "en" : "id";
+  const oppTrans = await prisma.projectTranslation.findFirst({
+    where: { projectId: project.projectId, locale: oppLocale }
+  });
+
+  if (oppTrans) {
+    baseSeo.alternates = {
+      ...baseSeo.alternates,
+      languages: {
+        [locale]: getLocalizedUrl(`/experience/${project.slug}`, locale as Locale),
+        [oppLocale]: getLocalizedUrl(`/experience/${oppTrans.slug}`, oppLocale as Locale),
+      }
+    };
+  }
+
+  return baseSeo;
 }
 
 export default async function ExperienceDetailPage({ params }: ExperienceDetailPageProps) {

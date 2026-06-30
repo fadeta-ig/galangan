@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
     if (faviconSetting?.value) {
       favicon = faviconSetting.value;
     }
-  } catch (e) {
+  } catch {
     // Ignore db errors if not ready
   }
 
